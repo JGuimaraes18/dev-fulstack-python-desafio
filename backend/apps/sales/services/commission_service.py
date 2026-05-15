@@ -2,32 +2,32 @@ from decimal import Decimal
 from apps.sales.models import CommissionRule
 
 
+def get_commission_rule(weekday: int):
+    return CommissionRule.objects.filter(weekday=weekday).first()
+
+
 def calculate_item_commission(sale_item, rule=None):
-    product_percentage = sale_item.product.commission_percentage
+    product_percentage = Decimal(sale_item.product.commission_percentage)
 
     if rule:
         product_percentage = max(
-            rule.min_percentage,
-            min(product_percentage, rule.max_percentage)
+            Decimal(rule.min_percentage),
+            min(product_percentage, Decimal(rule.max_percentage))
         )
 
-    total_value = sale_item.total_value()
+    total_value = sale_item.quantity * sale_item.product.unit_price
 
-    percentage = Decimal(product_percentage) / Decimal("100")
-    commission = total_value * percentage
-
-    return commission
+    return total_value * (product_percentage / Decimal("100"))
 
 
 def calculate_sale_commission(sale):
-    sale_date = sale.date
-    weekday = sale_date.weekday()
-
-    rule = CommissionRule.objects.filter(weekday=weekday).first()
+    rule = get_commission_rule(sale.date.weekday())
 
     total = Decimal("0.00")
 
-    for item in sale.items.all():
+    items = sale.items.select_related("product")
+
+    for item in items:
         total += calculate_item_commission(item, rule)
 
     return total
