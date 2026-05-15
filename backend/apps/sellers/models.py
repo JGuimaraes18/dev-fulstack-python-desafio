@@ -6,7 +6,9 @@ class Seller(models.Model):
         on_delete=models.CASCADE,
         related_name="seller_profile"
     )
+    name = models.CharField(max_length=150)
+    email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20)
 
     def __str__(self):
-        return self.user.get_full_name()
+        return self.name
