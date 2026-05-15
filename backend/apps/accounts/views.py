@@ -1,15 +1,18 @@
-from rest_framework import viewsets
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
+from core.permissions import IsSelfOrAdmin
 from .models import User
 from .serializers import UserSerializer
-from .permissions import IsAdminUserRole
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated, IsSelfOrAdmin]
 
-    def get_permissions(self):
-        if self.action == "create":
-            return [IsAuthenticated(), IsAdminUserRole()]
-        return [IsAuthenticated()]
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.groups.filter(name="ADMIN").exists():
+            return User.objects.all()
+
+        return User.objects.filter(id=user.id)
