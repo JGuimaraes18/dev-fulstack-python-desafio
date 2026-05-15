@@ -1,19 +1,34 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 
+
 class Sale(models.Model):
-    invoice_number = models.CharField(max_length=50, unique=True)
-    date = models.DateTimeField()
+    invoice_number = models.CharField(
+        max_length=50,
+        unique=True,
+        editable=False,
+    )
+    date = models.DateTimeField(auto_now_add=True)
+
     customer = models.ForeignKey(
         "customers.Customer",
         on_delete=models.PROTECT,
         related_name="sales",
     )
+
     seller = models.ForeignKey(
         "sellers.Seller",
         on_delete=models.PROTECT,
         related_name="sales",
     )
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+
+        if is_new and not self.invoice_number:
+            self.invoice_number = f"{self.pk:06d}"
+            super().save(update_fields=["invoice_number"])
 
     def __str__(self):
         return self.invoice_number
@@ -25,11 +40,29 @@ class SaleItem(models.Model):
         related_name="items",
         on_delete=models.CASCADE,
     )
+
     product = models.ForeignKey(
         "products.Product",
         on_delete=models.PROTECT,
     )
+
     quantity = models.PositiveIntegerField()
+
+    unit_price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        editable=False,
+    )
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            self.unit_price = self.product.unit_price
+
+        super().save(*args, **kwargs)
+
+    @property
+    def total_value(self):
+        return self.quantity * self.unit_price
 
     def __str__(self):
         return f"{self.product.description} - {self.quantity}"
@@ -47,8 +80,16 @@ class CommissionRule(models.Model):
     ]
 
     weekday = models.IntegerField(choices=WEEKDAYS, unique=True)
-    min_percentage = models.DecimalField(max_digits=5, decimal_places=2)
-    max_percentage = models.DecimalField(max_digits=5, decimal_places=2)
+
+    min_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+    )
+
+    max_percentage = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+    )
 
     def clean(self):
         if self.min_percentage > self.max_percentage:
