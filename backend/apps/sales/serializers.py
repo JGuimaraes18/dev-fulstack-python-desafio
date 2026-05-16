@@ -1,6 +1,7 @@
 from decimal import Decimal
 from rest_framework import serializers
 from apps.sales.models import Sale, SaleItem
+from .models import CommissionRule
 
 
 class SaleItemSerializer(serializers.ModelSerializer):
@@ -42,24 +43,14 @@ class SaleSerializer(serializers.ModelSerializer):
 
     def get_total_value(self, obj):
         return sum(
-            Decimal(item.quantity) * item.unit_price
+            item.quantity * item.unit_price
             for item in obj.items.all()
         )
 
     def create(self, validated_data):
         items_data = validated_data.pop("items")
-        request = self.context["request"]
-        user = request.user
 
-        if user.groups.filter(name="ADMIN").exists():
-            seller = validated_data.get("seller")
-        else:
-            seller = user.seller_profile
-
-        sale = Sale.objects.create(
-            seller=seller,
-            **validated_data
-        )
+        sale = Sale.objects.create(**validated_data)
 
         for item_data in items_data:
             SaleItem.objects.create(
@@ -91,3 +82,21 @@ class SaleSerializer(serializers.ModelSerializer):
                 )
 
         return instance
+    
+
+class CommissionRuleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommissionRule
+        fields = [
+            "id",
+            "weekday",
+            "min_percentage",
+            "max_percentage",
+        ]
+
+
+class CommissionReportSerializer(serializers.Serializer):
+    seller_id = serializers.IntegerField()
+    seller_name = serializers.CharField()
+    total_sales = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total_commission = serializers.DecimalField(max_digits=12, decimal_places=2)        

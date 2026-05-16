@@ -1,12 +1,18 @@
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
-from .models import Sale
-from .serializers import SaleSerializer
-from core.permissions import IsOwnerSale
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from django.utils.dateparse import parse_date
+from .models import CommissionRule, Sale
+from .serializers import CommissionReportSerializer, CommissionRuleSerializer, SaleSerializer
+from apps.sales.services.commission_service import calculate_commissions
+from core.permissions import IsAdminUserRole, IsOwnerSale
+
 
 
 class SaleViewSet(ModelViewSet):
+    queryset = Sale.objects.all()
     serializer_class = SaleSerializer
     permission_classes = [IsAuthenticated, IsOwnerSale]
 
@@ -25,7 +31,8 @@ class SaleViewSet(ModelViewSet):
         user = self.request.user
 
         if self._is_admin(user):
-            serializer.save()
+            seller = serializer.validated_data.get("seller")
+            serializer.save(seller=seller)
         else:
             serializer.save(seller=user.seller_profile)
 
@@ -40,3 +47,38 @@ class SaleViewSet(ModelViewSet):
             raise PermissionDenied("Vendedor não pode excluir venda.")
 
         return super().destroy(request, *args, **kwargs)
+    
+    
+class CommissionRuleViewSet(ModelViewSet):
+    queryset = CommissionRule.objects.all()
+    serializer_class = CommissionRuleSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserRole]    
+
+
+class CommissionReportView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        start_date = parse_date(request.GET.get("start_date"))
+        end_date = parse_date(request.GET.get("end_date"))
+
+        if not start_date or not end_date:
+            return Response(
+                {"detail": "start_date e end_date são obrigatórios"},
+                status=400
+            )
+
+        commissions = calculate_commissions(start_date, end_date)
+
+        data = [
+            {
+                "seller_id": c["seller"].id,
+                "seller_name": str(c["seller"]),
+                "total_sales": c["total_sales"],
+                "total_commission": c["total_commission"],
+            }
+            for c in commissions
+        ]
+
+        serializer = CommissionReportSerializer(data, many=True)
+        return Response(serializer.data)
