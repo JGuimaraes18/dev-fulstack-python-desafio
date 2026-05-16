@@ -1,4 +1,7 @@
+from decimal import Decimal
 from django.db import models
+from django.db.models import DecimalField, F, Sum
+from django.db.models.functions import Coalesce
 from django.core.exceptions import ValidationError
 
 
@@ -29,6 +32,18 @@ class Sale(models.Model):
         if is_new and not self.invoice_number:
             self.invoice_number = f"{self.pk:06d}"
             super().save(update_fields=["invoice_number"])
+
+    @property
+    def total_amount(self):
+        return self.items.aggregate(
+            total=Coalesce(
+                Sum(
+                    F("quantity") * F("unit_price"),
+                    output_field=DecimalField(max_digits=12, decimal_places=2),
+                ),
+                Decimal("0.00"),
+            )
+        )["total"]
 
     def __str__(self):
         return self.invoice_number
