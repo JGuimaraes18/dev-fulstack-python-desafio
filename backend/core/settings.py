@@ -37,6 +37,8 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "Controle de vendas API ",
     "DESCRIPTION": "API para controle de vendas e cálculo de comissões.",
     "VERSION": "1.0.0",
+    "SORT_OPERATION_PARAMETERS": False,
+    "COMPONENT_SPLIT_REQUEST": True,
 }
 
 # Application definition
