@@ -1,4 +1,7 @@
 from django.utils.dateparse import parse_date
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
+from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -60,13 +63,32 @@ class CommissionRuleViewSet(ModelViewSet):
 class CommissionReportView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="start_date",
+                type=OpenApiTypes.DATE,
+                location=OpenApiParameter.QUERY,
+                description="Data inicial (YYYY-MM-DD)",
+                required=True,
+            ),
+            OpenApiParameter(
+                name="end_date",
+                type=OpenApiTypes.DATE,
+                location=OpenApiParameter.QUERY,
+                description="Data final (YYYY-MM-DD)",
+                required=True,
+            ),
+        ],
+    )
+
     def get(self, request):
         start_date = parse_date(request.GET.get("start_date"))
         end_date = parse_date(request.GET.get("end_date"))
 
         if not start_date or not end_date:
             return Response(
-                {"detail": "start_date e end_date são obrigatórios"}, status=400
+                {"detail": "start_date e end_date são obrigatórios"}, status=status.HTTP_400_BAD_REQUEST
             )
 
         commissions = calculate_commissions(start_date, end_date)
@@ -82,4 +104,4 @@ class CommissionReportView(APIView):
         ]
 
         serializer = CommissionReportSerializer(data, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
