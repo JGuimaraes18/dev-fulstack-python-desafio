@@ -45,10 +45,7 @@ class SaleSerializer(serializers.ModelSerializer):
         read_only_fields = ["invoice_number", "date", "seller"]
 
     def get_total_value(self, obj):
-        return sum(
-            item.quantity * item.unit_price
-            for item in obj.items.all()
-        )
+        return sum(item.quantity * item.unit_price for item in obj.items.all())
 
     def create(self, validated_data):
         items_data = validated_data.pop("items")
@@ -85,7 +82,7 @@ class SaleSerializer(serializers.ModelSerializer):
                 )
 
         return instance
-    
+
     def validate(self, attrs):
         items = attrs.get("items")
 
@@ -95,7 +92,7 @@ class SaleSerializer(serializers.ModelSerializer):
             )
 
         return attrs
-    
+
 
 class CommissionRuleSerializer(serializers.ModelSerializer):
     class Meta:
@@ -112,4 +109,4 @@ class CommissionReportSerializer(serializers.Serializer):
     seller_id = serializers.IntegerField()
     seller_name = serializers.CharField()
     total_sales = serializers.DecimalField(max_digits=12, decimal_places=2)
-    total_commission = serializers.DecimalField(max_digits=12, decimal_places=2)        
+    total_commission = serializers.DecimalField(max_digits=12, decimal_places=2)

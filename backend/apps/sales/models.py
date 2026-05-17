@@ -1,8 +1,9 @@
 from decimal import Decimal
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import DecimalField, F, Sum
 from django.db.models.functions import Coalesce
-from django.core.exceptions import ValidationError
 
 
 class Sale(models.Model):

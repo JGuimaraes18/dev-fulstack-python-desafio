@@ -1,8 +1,10 @@
 from django.contrib import admin
 from django.db.models import DecimalField, ExpressionWrapper, F, Sum
 from django.db.models.functions import Coalesce
-from .models import Customer
+
 from apps.sales.models import Sale, SaleItem
+
+from .models import Customer
 
 
 def is_admin(user):
@@ -23,6 +25,7 @@ class SaleItemInline(admin.TabularInline):
 
     def total_value_display(self, obj):
         return obj.total_value
+
     total_value_display.short_description = "Total"
 
     def has_add_permission(self, request, obj=None):
@@ -54,6 +57,7 @@ class SaleInline(admin.TabularInline):
 
     def total_amount_display(self, obj):
         return obj.total_amount
+
     total_amount_display.short_description = "Total da Venda"
 
     def has_add_permission(self, request, obj=None):
@@ -97,4 +101,5 @@ class CustomerAdmin(admin.ModelAdmin):
 
     def total_spent_display(self, obj):
         return obj.total_spent
+
     total_spent_display.short_description = "Total Gasto"

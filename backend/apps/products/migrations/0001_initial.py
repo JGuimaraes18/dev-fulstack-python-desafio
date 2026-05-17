@@ -8,18 +8,35 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(editable=False, max_length=20, unique=True)),
-                ('description', models.CharField(max_length=255)),
-                ('unit_price', models.DecimalField(decimal_places=2, max_digits=10)),
-                ('commission_percent', models.DecimalField(decimal_places=2, max_digits=5, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(10)])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(editable=False, max_length=20, unique=True)),
+                ("description", models.CharField(max_length=255)),
+                ("unit_price", models.DecimalField(decimal_places=2, max_digits=10)),
+                (
+                    "commission_percent",
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=5,
+                        validators=[
+                            django.core.validators.MinValueValidator(0),
+                            django.core.validators.MaxValueValidator(10),
+                        ],
+                    ),
+                ),
             ],
         ),
     ]

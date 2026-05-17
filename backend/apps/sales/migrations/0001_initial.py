@@ -9,39 +9,112 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('customers', '0001_initial'),
-        ('products', '0001_initial'),
-        ('sellers', '0001_initial'),
+        ("customers", "0001_initial"),
+        ("products", "0001_initial"),
+        ("sellers", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CommissionRule',
+            name="CommissionRule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('weekday', models.IntegerField(choices=[(0, 'Segunda'), (1, 'Terça'), (2, 'Quarta'), (3, 'Quinta'), (4, 'Sexta'), (5, 'Sábado'), (6, 'Domingo')], unique=True)),
-                ('min_percentage', models.DecimalField(decimal_places=2, max_digits=5)),
-                ('max_percentage', models.DecimalField(decimal_places=2, max_digits=5)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "weekday",
+                    models.IntegerField(
+                        choices=[
+                            (0, "Segunda"),
+                            (1, "Terça"),
+                            (2, "Quarta"),
+                            (3, "Quinta"),
+                            (4, "Sexta"),
+                            (5, "Sábado"),
+                            (6, "Domingo"),
+                        ],
+                        unique=True,
+                    ),
+                ),
+                ("min_percentage", models.DecimalField(decimal_places=2, max_digits=5)),
+                ("max_percentage", models.DecimalField(decimal_places=2, max_digits=5)),
             ],
         ),
         migrations.CreateModel(
-            name='Sale',
+            name="Sale",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('invoice_number', models.CharField(editable=False, max_length=50, unique=True)),
-                ('date', models.DateTimeField(auto_now_add=True)),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='sales', to='customers.customer')),
-                ('seller', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='sales', to='sellers.seller')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "invoice_number",
+                    models.CharField(editable=False, max_length=50, unique=True),
+                ),
+                ("date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="sales",
+                        to="customers.customer",
+                    ),
+                ),
+                (
+                    "seller",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="sales",
+                        to="sellers.seller",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='SaleItem',
+            name="SaleItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.PositiveIntegerField()),
-                ('unit_price', models.DecimalField(decimal_places=2, editable=False, max_digits=10)),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='products.product')),
-                ('sale', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='sales.sale')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.PositiveIntegerField()),
+                (
+                    "unit_price",
+                    models.DecimalField(
+                        decimal_places=2, editable=False, max_digits=10
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="products.product",
+                    ),
+                ),
+                (
+                    "sale",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="items",
+                        to="sales.sale",
+                    ),
+                ),
             ],
         ),
     ]

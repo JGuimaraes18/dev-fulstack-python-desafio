@@ -1,29 +1,20 @@
 from decimal import Decimal
+
 from apps.sales.models import CommissionRule, Sale
 
 
 def get_commission_rule(weekday: int):
-    return (
-        CommissionRule.objects
-        .filter(weekday=weekday)
-        .order_by("id")
-        .first()
-    )
+    return CommissionRule.objects.filter(weekday=weekday).order_by("id").first()
 
 
 def calculate_item_commission(sale_item, rule=None):
-    product_percentage = Decimal(
-        sale_item.product.commission_percent or 0
-    )
+    product_percentage = Decimal(sale_item.product.commission_percent or 0)
 
     if rule:
         min_p = Decimal(rule.min_percentage)
         max_p = Decimal(rule.max_percentage)
 
-        product_percentage = max(
-            min_p,
-            min(product_percentage, max_p)
-        )
+        product_percentage = max(min_p, min(product_percentage, max_p))
 
     total_value = Decimal(sale_item.quantity) * sale_item.unit_price
 
@@ -45,16 +36,12 @@ def calculate_sale_commission(sale):
 
 def calculate_commissions(start_date, end_date):
     sales = (
-        Sale.objects
-        .filter(date__date__range=[start_date, end_date])
+        Sale.objects.filter(date__date__range=[start_date, end_date])
         .select_related("seller")
         .prefetch_related("items__product")
     )
 
-    commission_rules = {
-        rule.weekday: rule
-        for rule in CommissionRule.objects.all()
-    }
+    commission_rules = {rule.weekday: rule for rule in CommissionRule.objects.all()}
 
     result = {}
 
@@ -77,8 +64,7 @@ def calculate_commissions(start_date, end_date):
 
             if rule:
                 final_percent = max(
-                    rule.min_percentage,
-                    min(product_percent, rule.max_percentage)
+                    rule.min_percentage, min(product_percent, rule.max_percentage)
                 )
             else:
                 final_percent = product_percent

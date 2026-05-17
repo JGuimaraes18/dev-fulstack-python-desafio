@@ -1,23 +1,15 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
+
 from apps.accounts.views import UserViewSet
 from apps.customers.views import CustomerViewSet
 from apps.products.views import ProductViewSet
-from apps.sales.views import (
-    CommissionReportView,
-    SaleViewSet,
-)
+from apps.sales.views import CommissionReportView, SaleViewSet
 from apps.sellers.views import SellerViewSet
-from drf_spectacular.views import (
-    SpectacularAPIView,
-    SpectacularSwaggerView,
-)
-
 
 router = DefaultRouter()
 router.register(r"users", UserViewSet, basename="users")

@@ -1,15 +1,13 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+
 from .models import Seller
 
 User = get_user_model()
 
 
 def seller_users():
-    return User.objects.filter(
-        groups__name="SELLER",
-        is_active=True
-    )
+    return User.objects.filter(groups__name="SELLER", is_active=True)
 
 
 @admin.register(Seller)

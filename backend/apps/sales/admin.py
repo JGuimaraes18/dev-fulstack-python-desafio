@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Sale, SaleItem, CommissionRule
+
+from .models import CommissionRule, Sale, SaleItem
 
 
 def is_admin(user):

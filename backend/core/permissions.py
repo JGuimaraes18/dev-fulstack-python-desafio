@@ -5,13 +5,13 @@ class IsAdminUserRole(BasePermission):
     # Configuation for ADMIN group permissions
     def has_permission(self, request, view):
         return request.user.groups.filter(name="ADMIN").exists()
-    
+
 
 class IsSeller(BasePermission):
     # Configuation for SELLER group permissions
     def has_permission(self, request, view):
-        return request.user.groups.filter(name="SELLER").exists() 
-    
+        return request.user.groups.filter(name="SELLER").exists()
+
 
 class IsOwnerSale(BasePermission):
     def has_permission(self, request, view):
@@ -23,7 +23,7 @@ class IsOwnerSale(BasePermission):
             return True
 
         # SELLER only access their own sales
-        return obj.seller.user == request.user   
+        return obj.seller.user == request.user
 
 
 class IsSelfOrAdmin(BasePermission):

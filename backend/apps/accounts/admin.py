@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
+
 from .models import User
 
-
 admin.site.unregister(Group)
+
 
 class GroupAdmin(admin.ModelAdmin):
     def _is_superuser(self, request):
@@ -25,7 +26,9 @@ class GroupAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return self._is_superuser(request)
 
+
 admin.site.register(Group, GroupAdmin)
+
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -44,19 +47,22 @@ class CustomUserAdmin(UserAdmin):
     )
 
     add_fieldsets = (
-        (None, {
-            "classes": ("wide",),
-            "fields": (
-                "email",
-                "first_name",
-                "last_name",
-                "password1",
-                "password2",
-                "is_staff",
-                "is_active",
-                "groups",
-            ),
-        }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "email",
+                    "first_name",
+                    "last_name",
+                    "password1",
+                    "password2",
+                    "is_staff",
+                    "is_active",
+                    "groups",
+                ),
+            },
+        ),
     )
 
     def get_fieldsets(self, request, obj=None):

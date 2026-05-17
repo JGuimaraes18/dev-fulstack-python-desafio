@@ -1,14 +1,16 @@
+from django.utils.dateparse import parse_date
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from django.utils.dateparse import parse_date
-from .models import CommissionRule, Sale
-from .serializers import CommissionReportSerializer, CommissionRuleSerializer, SaleSerializer
+
 from apps.sales.services.commission_service import calculate_commissions
 from core.permissions import IsAdminUserRole, IsOwnerSale
 
+from .models import CommissionRule, Sale
+from .serializers import (CommissionReportSerializer, CommissionRuleSerializer,
+                          SaleSerializer)
 
 
 class SaleViewSet(ModelViewSet):
@@ -47,12 +49,12 @@ class SaleViewSet(ModelViewSet):
             raise PermissionDenied("Vendedor não pode excluir venda.")
 
         return super().destroy(request, *args, **kwargs)
-    
-    
+
+
 class CommissionRuleViewSet(ModelViewSet):
     queryset = CommissionRule.objects.all()
     serializer_class = CommissionRuleSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserRole]    
+    permission_classes = [IsAuthenticated, IsAdminUserRole]
 
 
 class CommissionReportView(APIView):
@@ -64,8 +66,7 @@ class CommissionReportView(APIView):
 
         if not start_date or not end_date:
             return Response(
-                {"detail": "start_date e end_date são obrigatórios"},
-                status=400
+                {"detail": "start_date e end_date são obrigatórios"}, status=400
             )
 
         commissions = calculate_commissions(start_date, end_date)
