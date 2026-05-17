@@ -1,6 +1,9 @@
 from decimal import Decimal
+
 from rest_framework import serializers
+
 from apps.sales.models import Sale, SaleItem
+
 from .models import CommissionRule
 
 
@@ -82,6 +85,16 @@ class SaleSerializer(serializers.ModelSerializer):
                 )
 
         return instance
+    
+    def validate(self, attrs):
+        items = attrs.get("items")
+
+        if not items:
+            raise serializers.ValidationError(
+                {"items": "A venda deve possuir ao menos um item."}
+            )
+
+        return attrs
     
 
 class CommissionRuleSerializer(serializers.ModelSerializer):
