@@ -6,6 +6,6 @@ from .serializers import SellerSerializer
 
 
 class SellerViewSet(ModelViewSet):
-    queryset = Seller.objects.all()
+    queryset = Seller.objects.select_related("user").all()
     serializer_class = SellerSerializer
     permission_classes = [IsAuthenticated]
