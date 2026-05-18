@@ -1,9 +1,9 @@
 export default function Header() {
   return (
-    <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
-      <h1 className="text-lg font-semibold text-gray-700">
-        Sales Management System
-      </h1>
+    <header className="h-12 bg-gray-300 border-b px-6 flex items-center justify-between">
+      <h2 className="text-lg font-bold text-teal-700 mt-1">
+        Vendas
+      </h2>
 
       <div className="text-sm text-gray-500">
         Senior Fullstack Test

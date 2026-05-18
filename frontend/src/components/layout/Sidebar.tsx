@@ -1,42 +1,41 @@
 import { NavLink } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 
 export default function Sidebar() {
   const baseClass =
-    "block px-4 py-2 rounded-lg transition-colors duration-200";
+    "flex items-center justify-between px-3 py-3 transition-all duration-200 text-teal-700";
 
-  const activeClass = "bg-blue-600 text-white";
+  const activeClass = "bg-teal-800 text-white";
   const inactiveClass =
-    "text-gray-700 hover:bg-blue-100 hover:text-blue-600";
+    "text-gray-700 hover:bg-gray-100";
+
+  const items = [
+    { label: "Vendas", to: "/" },
+    { label: "Comissões", to: "/commissions" },
+  ];
 
   return (
-    <aside className="w-64 bg-white shadow-md p-4">
-      <h2 className="text-xl font-bold mb-8 text-blue-600">
-        Sales Control
-      </h2>
-
+    <div className="h-full bg-white border-r w-35 mt-12">
       <nav className="space-y-2">
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            `${baseClass} ${
-              isActive ? activeClass : inactiveClass
-            }`
-          }
-        >
-          Vendas
-        </NavLink>
+        {items.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `${baseClass} ${
+                isActive ? activeClass : inactiveClass
+              }`
+            }
+          >
+            <span className="font-medium">{item.label}</span>
 
-        <NavLink
-          to="/commissions"
-          className={({ isActive }) =>
-            `${baseClass} ${
-              isActive ? activeClass : inactiveClass
-            }`
-          }
-        >
-          Comissões
-        </NavLink>
+            <ChevronRight
+              size={16}
+              className="text-gray-400"
+            />
+          </NavLink>
+        ))}
       </nav>
-    </aside>
+    </div>
   );
 }

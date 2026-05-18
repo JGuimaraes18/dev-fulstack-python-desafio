@@ -6,20 +6,18 @@ export default function SalesPage() {
   const [showForm, setShowForm] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
-  function handleSuccess() {
-    setRefreshKey((prev) => prev + 1);
-  }
-
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold">Sales</h1>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">
+          Vendas Realizadas
+        </h2>
 
         <button
           onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
+          className="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800"
         >
-          New Sale
+          Inserir nova Venda
         </button>
       </div>
 
@@ -28,7 +26,7 @@ export default function SalesPage() {
       {showForm && (
         <SalesForm
           onClose={() => setShowForm(false)}
-          onSuccess={handleSuccess}
+          onSuccess={() => setRefreshKey((p) => p + 1)}
         />
       )}
     </div>
