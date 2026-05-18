@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from .models import Seller
@@ -21,5 +22,6 @@ class SellerSerializer(serializers.ModelSerializer):
             "phone",
         ]
 
+    @extend_schema_field(serializers.CharField())
     def get_full_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}".strip()

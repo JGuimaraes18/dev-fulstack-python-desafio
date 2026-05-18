@@ -64,6 +64,7 @@ class CommissionReportView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
+        responses=CommissionReportSerializer(many=True),
         parameters=[
             OpenApiParameter(
                 name="start_date",

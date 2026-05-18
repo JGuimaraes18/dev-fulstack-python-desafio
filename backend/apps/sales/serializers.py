@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.sales.models import Sale, SaleItem
@@ -23,6 +24,7 @@ class SaleItemSerializer(serializers.ModelSerializer):
             "total_value",
         ]
 
+    @extend_schema_field(serializers.DecimalField(max_digits=12, decimal_places=2))
     def get_total_value(self, obj):
         return Decimal(obj.quantity) * obj.unit_price
 
@@ -44,6 +46,7 @@ class SaleSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["invoice_number", "date", "seller"]
 
+    @extend_schema_field(serializers.DecimalField(max_digits=12, decimal_places=2))
     def get_total_value(self, obj):
         return sum(item.quantity * item.unit_price for item in obj.items.all())
 
