@@ -17,7 +17,13 @@ export interface Sale {
   total_value: number;
 }
 
+export interface SaleItemPayload {
+  product: number;  
+  quantity: number;
+}
+
 export interface SaleCreatePayload {
   customer: number;
   seller: number;
+  items: SaleItemPayload[];
 }

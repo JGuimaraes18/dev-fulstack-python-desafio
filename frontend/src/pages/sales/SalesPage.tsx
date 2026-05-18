@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import SalesList from "./SalesList";
-import SalesForm from "./SalesForm";
 
 export default function SalesPage() {
-  const [showForm, setShowForm] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-4">
@@ -14,21 +13,15 @@ export default function SalesPage() {
         </h2>
 
         <button
-          onClick={() => setShowForm(true)}
-          className="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800"
+          onClick={() => navigate(`/vendas/nova`)}
+            className="bg-teal-700 text-white px-4 py-2 rounded hover:bg-teal-800"
         >
           Inserir nova Venda
         </button>
       </div>
 
-      <SalesList key={refreshKey} />
+      <SalesList />
 
-      {showForm && (
-        <SalesForm
-          onClose={() => setShowForm(false)}
-          onSuccess={() => setRefreshKey((p) => p + 1)}
-        />
-      )}
     </div>
   );
 }

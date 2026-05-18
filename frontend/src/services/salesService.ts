@@ -13,6 +13,14 @@ export async function createSale(
   return response.data;
 }
 
+export async function updateSale(
+  id: number,
+  data: SaleCreatePayload
+): Promise<Sale> {
+  const response = await api.put<Sale>(`/sales/${id}/`, data);
+  return response.data;
+}
+
 export async function deleteSale(id: number): Promise<void> {
   await api.delete(`/sales/${id}/`);
 }
