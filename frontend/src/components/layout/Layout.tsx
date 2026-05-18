@@ -8,12 +8,13 @@ interface Props {
 
 export default function Layout({ children }: Props) {
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Sidebar direto aqui */}
-      <Sidebar />
+    <div className="h-screen flex flex-col bg-slate-50">
+      {/* HEADER ocupa 100% da largura */}
+      <Header />
 
-      <div className="flex flex-col flex-1 h-full">
-        <Header />
+      {/* Abaixo do header */}
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar />
 
         <main className="flex-1 overflow-y-auto p-6">
           {children}

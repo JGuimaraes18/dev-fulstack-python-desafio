@@ -1,22 +1,22 @@
 import { NavLink } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Percent, ShoppingCart } from "lucide-react";
 
 export default function Sidebar() {
   const baseClass =
-    "flex items-center justify-between px-3 py-3 transition-all duration-200 text-teal-700";
+    "flex items-center justify-between px-3 py-3 transition-all duration-200";
 
-  const activeClass = "bg-teal-800 text-white";
+  const activeClass = "bg-slate-400 text-teal-900 font-bold shadow";
   const inactiveClass =
-    "text-gray-700 hover:bg-gray-100";
+    "text-teal-700 bg-white hover:bg-gray-200";
 
   const items = [
-    { label: "Vendas", to: "/" },
-    { label: "Comissões", to: "/commissions" },
+    { label: "Vendas", icones: ShoppingCart, to: "/" },
+    { label: "Comissões", icones: Percent , to: "/commissions" },
   ];
 
   return (
-    <div className="h-full bg-white border-r w-35 mt-12">
-      <nav className="space-y-2">
+    <div className="bg-slate-200 border-r w-50">
+      <nav className="space-y-2 py-2">
         {items.map((item) => (
           <NavLink
             key={item.to}
@@ -27,10 +27,13 @@ export default function Sidebar() {
               }`
             }
           >
-            <span className="font-medium">{item.label}</span>
+            <div className="flex items-center gap-3">
+              <item.icones size={18} />
+              <span>{item.label}</span>
+            </div>
 
             <ChevronRight
-              size={16}
+              size={22}
               className="text-gray-400"
             />
           </NavLink>
