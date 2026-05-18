@@ -44,7 +44,7 @@ class SaleSerializer(serializers.ModelSerializer):
             "items",
             "total_value",
         ]
-        read_only_fields = ["invoice_number", "date", "seller"]
+        read_only_fields = ["invoice_number", "date"]
 
     @extend_schema_field(serializers.DecimalField(max_digits=12, decimal_places=2))
     def get_total_value(self, obj):
@@ -68,8 +68,8 @@ class SaleSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         items_data = validated_data.pop("items", None)
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        instance.customer = validated_data.get('customer', instance.customer)
+        instance.seller = validated_data.get('seller', instance.seller)
 
         instance.save()
 
