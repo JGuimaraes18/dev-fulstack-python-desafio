@@ -54,7 +54,7 @@ def calculate_commissions(start_date, end_date):
         if seller.id not in result:
             result[seller.id] = {
                 "seller": seller,
-                "sale_count": 0
+                "sale_count": 0,
                 "total_sales": Decimal("0.00"),
                 "total_commission": Decimal("0.00"),
             }
