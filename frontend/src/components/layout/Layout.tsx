@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function Layout({ routes }: Props) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
 
   const currentRoute = routes.find((route) =>
