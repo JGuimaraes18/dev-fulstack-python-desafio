@@ -7,6 +7,8 @@ import CreateSale from "../pages/sales/CreateSale";
 import CommissionPage from "../pages/commission/CommissionPage";
 import LoginPage from "../pages/login/LoginPage";
 import PrivateRoute from "./privateRoute";
+import NotFoundPage from "../pages/errors/NotFoundPage";
+import ServerErrorPage from "../pages/errors/ServerErrorPage";
 
 interface AppRoute {
   path: string;
@@ -74,6 +76,11 @@ export default function AppRoutes() {
               />
             ))}
         </Route>
+
+        <Route path="*" element={<NotFoundPage />} />
+        
+        <Route path="/error" element={<ServerErrorPage />} />
+
       </Routes>
     </BrowserRouter>
   );
