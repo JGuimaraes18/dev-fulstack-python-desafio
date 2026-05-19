@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trash2, Search } from "lucide-react";
+import { Pencil, Trash2, Search } from "lucide-react";
 import { getCustomers } from "../../../services/customerService";
 import { getSellers } from "../../../services/sellerService";
 import { getProducts } from "../../../services/productService";
@@ -33,6 +33,9 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [quantityToAdd, setQuantityToAdd] = useState(1);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  const [formError, setFormError] = useState(false);
 
   useEffect(() => {
     async function loadData() {
@@ -97,7 +100,7 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
   };
 
   const handleAddItem = () => {
-    if (!selectedProduct) return alert("Selecione um produto da lista.");
+    if (!selectedProduct) return true;
     const unitPrice = parseFloat(selectedProduct.unit_price);
     const newItem: SaleItem = {
       id: Math.random(),
@@ -115,35 +118,51 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
 
   const totalGeral = items.reduce((acc, item) => acc + item.total_value, 0);
 
+  const handleUpdateQuantity = (index: number, newQuantity: number) => {
+    const updated = [...items];
+    updated[index].quantity = newQuantity;
+    updated[index].total_value =
+      updated[index].unit_price * newQuantity;
+
+    setItems(updated);
+  };
+
   const handleSubmit = async () => {
-    if (!selectedSeller || !selectedCustomer || items.length === 0) {
-      return alert("Preencha Vendedor, Cliente e adicione ao menos um produto.");
+    const hasError =
+      !selectedSeller || !selectedCustomer || items.length === 0;
+    if (hasError) {
+      setFormError(true);
+      return;
     }
+    setFormError(false);
     const payload = {
       customer: Number(selectedCustomer),
       seller: Number(selectedSeller),
-      items: items.map(item => ({ product: item.product, quantity: item.quantity }))
+      items: items.map(item => ({
+        product: item.product,
+        quantity: item.quantity,
+      })),
     };
     await onSave(payload);
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200 min-h-full">
-      <header className="mb-8 border-b pb-4">
-        <h1 className="text-2xl font-bold text-teal-700 italic">{title}</h1>
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 border-b">
+        <div className="text-2xl font-bold text-teal-700 italic">{title}</div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2">
-          <h3 className="text-lg font-semibold mb-6 text-gray-800">Produtos</h3>
+          <h3 className="text-lg font-semibold mb-4 mt-4 text-gray-800">Produtos</h3>
           <div className="flex gap-4 mb-10 items-end relative">
             <div className="flex-1 relative">
               <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Buscar Produto</label>
               <div className="relative">
                 <input 
                   type="text" 
-                  className="w-full border-b border-gray-300 py-2 pl-2 pr-8 outline-none focus:border-teal-600 bg-transparent" 
-                  placeholder="Código ou nome..." 
+                  className="w-full text-sm border-b border-gray-300 py-2 pl-2 pr-8 outline-none focus:border-teal-600 bg-transparent" 
+                  placeholder="Código ou descrição..." 
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -152,9 +171,9 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
                 <Search className="absolute right-2 top-2 text-gray-300" size={18} />
               </div>
               {showSuggestions && filteredProducts.length > 0 && (
-                <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-md shadow-2xl mt-1 max-h-64 overflow-y-auto" ref={suggestionRef}>
+                <div className="absolute z-50 w-full bg-white border border-gray-100 rounded-md shadow-xl mt-1 max-h-64 overflow-y-auto" ref={suggestionRef}>
                   {filteredProducts.map((p, idx) => (
-                    <div key={p.id} onClick={() => handleSelectProduct(p)} className={`px-4 py-3 cursor-pointer flex justify-between items-center border-b last:border-0 ${focusedIndex === idx ? "bg-teal-100" : "hover:bg-teal-50"}`}>
+                    <div key={p.id} onClick={() => handleSelectProduct(p)} className={`px-4 py-3 cursor-pointer flex justify-between items-center border-b last:border-0 text-sm ${focusedIndex === idx ? "bg-teal-100" : "hover:bg-teal-50"}`}>
                       <div>
                         <p className="font-bold text-gray-700">{p.description}</p>
                         <p className="text-[10px] text-gray-400">CÓD: {p.code}</p>
@@ -166,66 +185,127 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
               )}
             </div>
             <div className="w-24">
-              <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Qtd</label>
-              <input type="number" className="w-full border-b border-gray-300 py-2 outline-none text-center" value={quantityToAdd} onChange={(e) => setQuantityToAdd(Number(e.target.value))} min="1" />
+              <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Quantidade</label>
+              <input type="number" className="w-full text-sm border-b border-gray-300 py-2 outline-none text-center" value={quantityToAdd} onChange={(e) => setQuantityToAdd(Number(e.target.value))} min="1" />
             </div>
-            <button onClick={handleAddItem} className="bg-teal-800 text-white px-8 py-2 rounded uppercase text-xs font-black hover:bg-teal-900 h-[38px]">Adicionar</button>
+            <button onClick={handleAddItem} className="bg-teal-800 text-white px-2 py-2 rounded uppercase text-xs font-black hover:bg-teal-900 h-[35px]">Adicionar</button>
           </div>
 
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-400 uppercase text-[10px] border-b">
-                <th className="pb-3">Produtos/Serviço</th>
-                <th className="pb-3">Qtd</th>
-                <th className="pb-3 text-right">Unitário</th>
-                <th className="pb-3 text-right">Total</th>
-                <th className="pb-3 w-10 text-center">Ação</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, idx) => (
-                <tr key={idx} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
-                  <td className="py-4 text-gray-600 font-medium">{item.product_description}</td>
-                  <td className="py-4 text-gray-600">{item.quantity}</td>
-                  <td className="py-4 text-gray-600 text-right">R$ {Number(item.unit_price).toFixed(2)}</td>
-                  <td className="py-4 font-bold text-gray-800 text-right">R$ {Number(item.total_value).toFixed(2)}</td>
-                  <td className="py-4 text-center">
-                    <button onClick={() => setItems(items.filter((_, i) => i !== idx))} className="text-gray-300 hover:text-red-500"><Trash2 size={18} /></button>
-                  </td>
+          <div className={`max-h-80 overflow-y-auto custom-scroll rounded-md`}>
+            {formError && items.length === 0 && (
+              <p className="text-red-500 text-xs border-red-500">
+                *Adicione pelo menos um produto para continuar
+              </p>
+            )}
+            <table className="w-full text-sm table-fixed">
+              <thead className="sticky top-0 bg-white z-10">
+                <tr className="text-left text-gray-400 uppercase text-[10px] border-b">
+                  <th className="py-3 w-[45%]">Produtos</th>
+                  <th className="py-3 w-[15%] text-center">Quantidade</th>
+                  <th className="py-3 w-[15%] text-center">Valor Unitário</th>
+                  <th className="py-3 w-[15%] text-center">Total</th>
+                  <th className="py-3 w-[10%] text-center">Ação</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {items.map((item, idx) => (
+                  <tr
+                    key={idx}
+                    className="border-b text-[12px] last:border-0 hover:bg-slate-50 transition-colors"
+                  >
+                    <td className="py-2 text-gray-600 font-medium truncate">
+                      {item.product_description}
+                    </td>
+                    <td className="py-2 text-center">
+                      {editingIndex === idx ? (
+                        <input
+                          type="number"
+                          min="1"
+                          autoFocus
+                          value={item.quantity}
+                          onChange={(e) =>
+                            handleUpdateQuantity(idx, Number(e.target.value))
+                          }
+                          onBlur={() => setEditingIndex(null)}
+                          className="w-16 text-center border-b border-gray-300 outline-none"
+                        />
+                      ) : (
+                        item.quantity
+                      )}
+                    </td>
+                    <td className="py-2 text-gray-600 text-center">
+                      R$ {Number(item.unit_price).toFixed(2)}
+                    </td>
+                    <td className="py-2 font-bold text-gray-800 text-center">
+                      R$ {Number(item.total_value).toFixed(2)}
+                    </td>
+                    <td className="py-2">
+                      <div className="flex items-center justify-center gap-3">
+                        <button
+                          onClick={() => setEditingIndex(idx)}
+                          className="text-gray-400 hover:text-blue-600 transition"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button
+                          onClick={() =>
+                            setItems(items.filter((_, i) => i !== idx))
+                          }
+                          className="text-gray-300 hover:text-red-500 transition"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="bg-slate-50 p-6 rounded-xl border border-gray-200 h-fit sticky top-6">
-          <h3 className="text-lg font-semibold mb-6 text-gray-700">Dados da venda</h3>
+          <h3 className="text-lg font-semibold mb-4 text-gray-700">Dados da venda</h3>
           <div className="space-y-6">
             <div>
               <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Data</label>
-              <input type="text" disabled value={initialData ? new Date(initialData.date).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR')} className="w-full bg-white border border-gray-200 rounded-md p-2 text-gray-400 text-sm" />
+              <input type="text" disabled value={initialData ? new Date(initialData.date).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR')} className="w-full bg-white border border-gray-200 rounded-md p-2 text-gray-400 text-xs" />
             </div>
             <div>
               <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Vendedor</label>
-              <select className="w-full bg-white border border-gray-300 rounded-md p-2 outline-none text-sm focus:ring-2 focus:ring-teal-500" value={selectedSeller} onChange={(e) => setSelectedSeller(Number(e.target.value))}>
+                <select className={`w-full text-xs bg-white border rounded-md p-2 outline-none text-sm focus:ring-2 focus:ring-teal-500 ${formError && !selectedSeller ? "border-red-500" : "border-gray-300"}`} value={selectedSeller} onChange={(e) => setSelectedSeller(Number(e.target.value))}>
                 <option value={0}>Selecione...</option>
                 {sellers.map(s => <option key={s.id} value={s.id}>{String(s.id).padStart(3, '0')} - {s.full_name}</option>)}
               </select>
             </div>
             <div>
               <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Cliente</label>
-              <select className="w-full bg-white border border-gray-300 rounded-md p-2 outline-none text-sm focus:ring-2 focus:ring-teal-500" value={selectedCustomer} onChange={(e) => setSelectedCustomer(Number(e.target.value))}>
+              <select className={`w-full text-xs bg-white border rounded-md p-2 outline-none text-sm focus:ring-2 focus:ring-teal-500 ${formError && !selectedCustomer ? "border-red-500" : "border-gray-300"}`} value={selectedCustomer} onChange={(e) => setSelectedCustomer(Number(e.target.value))}>
                 <option value={0}>Selecione...</option>
                 {customers.map(c => <option key={c.id} value={c.id}>{String(c.id).padStart(3, '0')} - {c.name}</option>)}
               </select>
             </div>
-            <div className="pt-8 border-t">
+            <div className="pt-8 border-t space-y-6">
               <div className="flex flex-col mb-10">
-                <span className="text-gray-500 font-bold text-xs uppercase">Total da venda</span>
-                <span className="text-4xl font-black italic text-teal-900">R$ {totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                <span className="text-gray-500 text-lg font-bold text-xs uppercase">Total da venda</span>
+                <span className="text-3xl font-black  text-right text-teal-900">R$ {totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
               </div>
-              <button onClick={handleSubmit} className="w-full bg-teal-600 text-white py-3 rounded-lg font-bold uppercase shadow-lg hover:bg-teal-700 active:scale-95 transition-all">Finalizar</button>
-              <button onClick={() => navigate("/")} className="w-full bg-slate-300 text-slate-700 py-3 rounded-lg font-bold uppercase mt-3 hover:bg-slate-400">Cancelar</button>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => navigate("/")}
+                  className="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  onClick={handleSubmit}
+                  className="bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-teal-700 active:scale-95 transition-all"
+                >
+                  Finalizar
+                </button>
+              </div>
             </div>
           </div>
         </div>
