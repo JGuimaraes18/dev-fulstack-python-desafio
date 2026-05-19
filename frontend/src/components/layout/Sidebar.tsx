@@ -1,23 +1,27 @@
 import { NavLink } from "react-router-dom";
 import { ChevronRight, Percent, ShoppingCart } from "lucide-react";
+import { getUser } from "../../services/authService";
+import { isAdmin } from "../../services/authService";
 
 interface Props {
   isOpen: boolean;
 }
 
 export default function Sidebar({ isOpen }: Props) {
+  const user = getUser();
+
   const baseClass =
     "text-xs flex items-center justify-between px-2 py-2 transition-all duration-200";
 
   const activeClass = "bg-slate-400 text-teal-900 font-semibold shadow";
-  const inactiveClass =
-    "text-teal-700 bg-white hover:bg-gray-200";
+  const inactiveClass = "text-teal-700 bg-white hover:bg-gray-200";
 
   const items = [
     { label: "Vendas", icones: ShoppingCart, to: "/" },
-    { label: "Comissões", icones: Percent, to: "/comissoes" },
+    ...(isAdmin()
+      ? [{ label: "Comissões", icones: Percent, to: "/comissoes" }]
+      : []),
   ];
-
   return (
     <div
       className={`
