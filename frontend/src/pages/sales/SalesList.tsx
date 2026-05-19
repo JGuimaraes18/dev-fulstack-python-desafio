@@ -80,45 +80,43 @@ export default function SalesList() {
 
   return (
     <>
-      <div className="bg-white rounded-lg border overflow-hidden">
-        <div className="max-h-[600px] overflow-y-auto">
-          <table className="w-full text-left border-collapse text-sm">
+      <div className="bg-white rounded-lg overflow-hidden">
+        <div className="max-h-[80vh] overflow-y-auto custom-scroll">
+          <table className="w-full text-left text-xs">
             <thead className="bg-gray-100 text-gray-700">
               <tr>
-                <th className="p-3">Nota Fiscal</th>
-                <th className="p-3">Cliente</th>
-                <th className="p-3">Vendedor</th>
-                <th className="p-3">Data</th>
-                <th className="p-3">Valor Total</th>
-                <th className="p-3 text-center">Opções</th>
+                <th className="p-2">Nota Fiscal</th>
+                <th className="p-2">Cliente</th>
+                <th className="p-2">Vendedor</th>
+                <th className="p-2 text-center">Data</th>
+                <th className="p-2 text-center">Valor Total</th>
+                <th className="p-2 text-center">Opções</th>
               </tr>
             </thead>
 
             <tbody>
               {sales.map((sale) => (
                 <Fragment key={sale.id}>
-                  {/* LINHA PRINCIPAL */}
-                  <tr className="border-b hover:bg-gray-50 transition">
-                    <td className="p-3">{sale.invoice_number}</td>
+                  <tr className="border-b hover:bg-gray-100 transition text-gray-700 text-xs">
+                    <td className="p-2">{sale.invoice_number}</td>
 
-                    <td className="p-3">
+                    <td className="p-2">
                       {customerMap.get(sale.customer) ?? "—"}
                     </td>
 
-                    <td className="p-3">
+                    <td className="p-2">
                       {sellerMap.get(sale.seller) ?? "—"}
                     </td>
 
-                    <td className="p-3">
+                    <td className="text-center">
                       {new Date(sale.date).toLocaleString("pt-BR")}
                     </td>
 
-                    <td className="p-3 font-medium">
+                    <td className="p-2 text-center font-medium">
                       {currencyFormatter.format(sale.total_value)}
                     </td>
 
                     <td className="p-3 flex justify-center items-center gap-4">
-                      {/* VER ITENS */}
                       <button
                         onClick={() => toggleExpand(sale.id)}
                         className="text-teal-700 flex items-center gap-1 hover:underline"
@@ -134,7 +132,6 @@ export default function SalesList() {
                         )}
                       </button>
 
-                      {/* EDITAR */}
                       <button
                         onClick={() => navigate(`/vendas/editar/${sale.id}`)}
                         className="text-blue-600 hover:text-blue-800"
@@ -142,7 +139,6 @@ export default function SalesList() {
                         <Pencil size={16} />
                       </button>
 
-                      {/* DELETE */}
                       <button
                         onClick={() => handleDelete(sale.id)}
                         className="text-red-600 hover:text-red-800"
@@ -152,47 +148,46 @@ export default function SalesList() {
                     </td>
                   </tr>
 
-                  {/* LINHA EXPANDIDA */}
                   {expandedSaleId === sale.id && (
                     <tr className="bg-gray-50">
-                      <td colSpan={6} className="p-4">
-                        <table className="w-full text-sm">
-                          <thead className="text-gray-600 border-b">
+                      <td colSpan={6} className="p-3">
+                        <table className="w-full text-xs text-gray-600">
+                          <thead className="border-b">
                             <tr>
-                              <th className="py-2 text-left">
+                              <th className="py-2 text-left font-semibold">
                                 Produto/Serviço
                               </th>
-                              <th className="py-2 text-center">Qtd</th>
-                              <th className="py-2 text-right">
+                              <th className="py-2 text-center font-semibold">Quantidade</th>
+                              <th className="py-2 text-center font-semibold">
                                 Preço Unit.
                               </th>
-                              <th className="py-2 text-right">Total</th>
+                              <th className="py-2 text-right font-semibold">Total</th>
                             </tr>
                           </thead>
 
                           <tbody>
                             {sale.items.map((item) => (
-                              <tr key={item.id} className="border-b">
-                                <td className="py-2">
+                              <tr key={item.id} className="border-b text-xs">
+                                <td className="py-1 px-3">
                                   {item.product_description}
                                 </td>
 
-                                <td className="py-2 text-center">
+                                <td className="py-1 text-center">
                                   {item.quantity}
                                 </td>
 
-                                <td className="py-2 text-right">
+                                <td className="py-1 text-center">
                                   {currencyFormatter.format(item.unit_price)}
                                 </td>
 
-                                <td className="py-2 text-right font-medium">
+                                <td className="py-1 text-right">
                                   {currencyFormatter.format(item.total_value)}
                                 </td>
                               </tr>
                             ))}
 
                             <tr className="font-semibold">
-                              <td colSpan={3} className="py-2 text-right">
+                              <td colSpan={3} className="py-2 text-right font-bold">
                                 Total da Venda:
                               </td>
                               <td className="py-2 text-right">
