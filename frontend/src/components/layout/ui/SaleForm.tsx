@@ -4,6 +4,7 @@ import { Pencil, Trash2, Search } from "lucide-react";
 import { getCustomers } from "../../../services/customerService";
 import { getSellers } from "../../../services/sellerService";
 import { getProducts } from "../../../services/productService";
+import { getUser, isAdmin } from "../../../services/authService";
 import type { Seller } from "../../../types/Seller";
 import type { Customer } from "../../../types/Customer";
 import type { Product } from "../../../types/Product";
@@ -39,19 +40,64 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
 
   useEffect(() => {
     async function loadData() {
-      const [c, s, p] = await Promise.all([getCustomers(), getSellers(), getProducts()]);
+      const [c, s, p] = await Promise.all([
+        getCustomers(),
+        getSellers(),
+        getProducts(),
+      ]);
+
       setCustomers(c);
-      setSellers(s);
       setProducts(p);
+
+      const user = getUser();
+
+      const isSeller = !isAdmin();
 
       if (initialData) {
         setItems(initialData.items);
-        const sId = typeof initialData.seller === 'object' ? (initialData.seller as any).id : Number(initialData.seller);
-        const cId = typeof initialData.customer === 'object' ? (initialData.customer as any).id : Number(initialData.customer);
+
+        const sId =
+          typeof initialData.seller === "object"
+            ? (initialData.seller as any).id
+            : Number(initialData.seller);
+
+        const cId =
+          typeof initialData.customer === "object"
+            ? (initialData.customer as any).id
+            : Number(initialData.customer);
+
         setSelectedSeller(sId);
         setSelectedCustomer(cId);
+
+        if (isSeller) {
+          const sellerLogged = s.find(
+            (seller) => seller.user === user?.id
+          );
+
+          if (sellerLogged) {
+            setSellers([sellerLogged]);
+          }
+        } else {
+          setSellers(s);
+        }
+
+        return;
+      }
+
+      if (isSeller) {
+        const sellerLogged = s.find(
+          (seller) => seller.user === user?.id
+        );
+
+        if (sellerLogged) {
+          setSellers([sellerLogged]);
+          setSelectedSeller(sellerLogged.id);
+        }
+      } else {
+        setSellers(s);
       }
     }
+
     loadData();
   }, [initialData]);
 
@@ -274,10 +320,34 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
             </div>
             <div>
               <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Vendedor</label>
-                <select className={`w-full text-xs bg-white border rounded-md p-2 outline-none text-sm focus:ring-2 focus:ring-teal-500 ${formError && !selectedSeller ? "border-red-500" : "border-gray-300"}`} value={selectedSeller} onChange={(e) => setSelectedSeller(Number(e.target.value))}>
-                <option value={0}>Selecione...</option>
-                {sellers.map(s => <option key={s.id} value={s.id}>{String(s.id).padStart(3, '0')} - {s.full_name}</option>)}
-              </select>
+                {isAdmin() ? (
+                  <select
+                    className={`w-full text-xs bg-white border rounded-md p-2 outline-none text-sm focus:ring-2 focus:ring-teal-500 ${
+                      formError && !selectedSeller
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
+                    value={selectedSeller}
+                    onChange={(e) =>
+                      setSelectedSeller(Number(e.target.value))
+                    }
+                  >
+                    <option value={0}>Selecione...</option>
+                    {sellers.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {String(s.id).padStart(3, "0")} - {s.full_name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="w-full text-xs bg-gray-100 border border-gray-300 rounded-md p-2 text-sm">
+                    {sellers.length > 0
+                      ? `${String(sellers[0].id).padStart(3, "0")} - ${
+                          sellers[0].full_name
+                        }`
+                      : "Carregando..."}
+                  </div>
+                )}
             </div>
             <div>
               <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Cliente</label>

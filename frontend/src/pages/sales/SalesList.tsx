@@ -8,6 +8,7 @@ import type { Seller } from "../../types/Seller";
 import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmModal } from "../../components/layout/ui/ConfirmModal";
+import { getUser } from "../../services/authService";
 
 export default function SalesList() {
   const [sales, setSales] = useState<Sale[]>([]);
@@ -19,6 +20,9 @@ export default function SalesList() {
   const [saleToDelete, setSaleToDelete] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
+  const user = getUser();
+  const isSeller = user?.groups?.includes("SELLER");
+
   const navigate = useNavigate();
 
   const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -141,24 +145,35 @@ export default function SalesList() {
                           </>
                         ) : (
                           <>
-                            Ver itens <ChevronDown size={16} />
-                          </>
+                          Ver itens <ChevronDown size={16} />
+                        </>
                         )}
                       </button>
-
+                      
                       <button
-                        onClick={() => navigate(`/vendas/editar/${sale.id}`)}
-                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => !isSeller && navigate(`/vendas/editar/${sale.id}`)}
+                        disabled={isSeller}
+                        className={`${
+                          isSeller
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-blue-600 hover:text-blue-800"
+                        }`}
                       >
                         <Pencil size={16} />
                       </button>
 
                       <button
                         onClick={() => {
+                          if (isSeller) return;
                           setSaleToDelete(sale.id);
                           setIsModalOpen(true);
                         }}
-                        className="text-red-600 hover:text-red-800"
+                        disabled={isSeller}
+                        className={`${
+                          isSeller
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-red-600 hover:text-red-800"
+                        }`}
                       >
                         <Trash2 size={16} />
                       </button>

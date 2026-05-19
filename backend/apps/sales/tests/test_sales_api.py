@@ -35,6 +35,7 @@ class TesteSaleAPI(APITestCase):
     def test_create_sale(self):
         payload = {
             "customer": self.customer.id,
+            "seller": self.seller.id,
             "items": [{"product": self.product.id, "quantity": 2}],
         }
 
@@ -56,7 +57,7 @@ class TesteSaleAPI(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_create_sale_without_items(self):
-        payload = {"customer": self.customer.id, "items": []}
+        payload = {"customer": self.customer.id, "seller": self.seller.id, "items": []}
 
         response = self.client.post("/api/sales/", payload, format="json")
 
@@ -65,6 +66,7 @@ class TesteSaleAPI(APITestCase):
     def test_create_sale_with_invalid_product(self):
         payload = {
             "customer": self.customer.id,
+            "seller": self.seller.id,
             "items": [{"product": 9999, "quantity": 1}],
         }
 
@@ -75,6 +77,7 @@ class TesteSaleAPI(APITestCase):
     def test_sale_total_calculation(self):
         payload = {
             "customer": self.customer.id,
+            "seller": self.seller.id,
             "items": [{"product": self.product.id, "quantity": 2}],
         }
 
