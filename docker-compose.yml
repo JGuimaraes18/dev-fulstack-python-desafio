@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    env_file:
+      - .env_prod
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - net_sales
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: always
+    env_file:
+      - .env_prod
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - net_sales
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        VITE_API_URL: https://api.your-domain.com
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - net_sales
+
+networks:
+  net_sales:
+
+volumes:
+  pg_data:

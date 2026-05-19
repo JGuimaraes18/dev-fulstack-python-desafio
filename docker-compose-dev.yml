@@ -1,47 +1,47 @@
 services:
   db:
-    image: postgres:18-alpine
-    container_name: sales_db
+    image: postgres:16-alpine
+    container_name: sales_db_dev
     restart: always
     networks:
-      - interface
+      - net_sales_dev
     ports:
       - "5432:5432"
     env_file:
-      - .env
+      - .env_dev
     volumes:
-      - ./postgres_data:/var/lib/postgresql
+      - ./postgres_data:/var/lib/postgresql/data
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
-    container_name: sales_backend
+    container_name: sales_backend_dev
     command: python manage.py runserver 0.0.0.0:8000
     ports:
       - "8000:8000"
     depends_on:
       - db
     env_file:
-      - .env
+      - .env_dev
     networks:
-      - interface
-      
+      - net_sales_dev
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
-    container_name: sales_frontend
+    container_name: sales_frontend_dev
     networks:
-      - interface
+      - net_sales_dev
     volumes:
       - ./frontend:/app
       - /app/node_modules
     ports:
       - "3000:3000"
     environment:
-      - CHOKIDAR_USEPOLLING=true      
+      - CHOKIDAR_USEPOLLING=true
 
-networks: 
-  interface:
+networks:
+  net_sales_dev:
     driver: bridge

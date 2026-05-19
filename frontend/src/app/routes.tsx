@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import Layout from "../components/layout/Layout";
 import SalesPage from "../pages/sales/SalesPage";
 import EditSale from "../pages/sales/EditSale";

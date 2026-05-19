@@ -1,6 +1,5 @@
 import { Menu } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { getUser, logout } from "../../services/authService";
+import { getUser } from "../../services/authService";
 
 interface Props {
   isOpen: boolean;
@@ -10,7 +9,6 @@ interface Props {
 
 export default function Header({ isOpen, setIsOpen, title }: Props) {
   const user = getUser();
-  const navigate = useNavigate();
 
   return (
     <header className="relative h-14 bg-gray-300 border-b px-4 flex items-center justify-between">
