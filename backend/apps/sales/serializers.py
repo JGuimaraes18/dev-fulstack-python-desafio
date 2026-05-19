@@ -111,5 +111,6 @@ class CommissionRuleSerializer(serializers.ModelSerializer):
 class CommissionReportSerializer(serializers.Serializer):
     seller_id = serializers.IntegerField()
     seller_name = serializers.CharField()
+    sale_count = serializers.IntegerField()
     total_sales = serializers.DecimalField(max_digits=12, decimal_places=2)
     total_commission = serializers.DecimalField(max_digits=12, decimal_places=2)

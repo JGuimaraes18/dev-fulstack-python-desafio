@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ReactElement } from "react";
 import Layout from "../components/layout/Layout";
 import SalesPage from "../pages/sales/SalesPage";
 import EditSale from "../pages/sales/EditSale";
 import CreateSale from "../pages/sales/CreateSale";
-import { ReactElement } from "react";
+import CommissionPage from "../pages/commission/CommissionPage";
 
 interface AppRoute {
   path: string;
@@ -26,6 +27,11 @@ const routes: AppRoute[] = [
     path: "/vendas/editar/:id",
     element: <EditSale />,
     title: "Editar Venda",
+  },
+  {
+    path: "/comissoes",
+    element: <CommissionPage />,
+    title: "Comissões",
   },
 ];
 
