@@ -8,10 +8,19 @@ export default function CreateSalePage() {
   const handleCreate = async (payload: any) => {
     try {
       await createSale(payload);
-      alert("Venda criada com sucesso!");
-      navigate("/");
+      navigate("/", {
+        state: {
+        message: "Venda criada com sucesso!",
+        type: "success"
+        }
+      });
     } catch (error) {
-      alert("Erro ao criar venda.");
+      navigate("/", {
+        state: { 
+        message: "Erro ao criar venda!",
+        type: "error"
+        }
+      });
     }
   };
 

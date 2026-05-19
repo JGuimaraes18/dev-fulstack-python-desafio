@@ -21,10 +21,19 @@ export default function EditSalePage() {
   const handleUpdate = async (payload: any) => {
     try {
       await updateSale(Number(id), payload);
-      alert("Venda atualizada!");
-      navigate("/");
+      navigate("/", {
+        state: {
+        message: "Venda atualizada com sucesso!",
+        type: "success"
+        }
+      });
     } catch (error) {
-      alert("Erro ao atualizar.");
+      navigate("/", {
+        state: { 
+          message: "Erro ao atualizar venda!",
+          type: "error"
+         }
+      });
     }
   };
 
