@@ -97,8 +97,8 @@ export default function SalesList() {
             <tbody>
               {sales.map((sale) => (
                 <Fragment key={sale.id}>
-                  <tr className="border-b hover:bg-gray-100 transition text-gray-700 text-xs">
-                    <td className="p-2">{sale.invoice_number}</td>
+                  <tr className="border-b hover:bg-slate-50 transition-colors text-gray-700 text-xs">
+                    <td className="p-2 font-mono">{sale.invoice_number}</td>
 
                     <td className="p-2">
                       {customerMap.get(sale.customer) ?? "—"}
