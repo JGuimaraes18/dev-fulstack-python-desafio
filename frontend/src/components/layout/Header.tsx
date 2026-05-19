@@ -1,12 +1,23 @@
-export default function Header() {
-  return (
-    <header className="h-12 bg-gray-300 border-b px-6 flex items-center justify-between">
-      <h2 className="text-lg font-bold text-teal-700 mt-1">
-        Menu
-      </h2>
+import { Menu } from "lucide-react";
 
-      <div className="text-sm text-gray-500">
-        Senior Fullstack Test
+interface Props {
+  isOpen: boolean;
+  setIsOpen: (value: boolean) => void;
+  title: string;
+}
+
+export default function Header({ isOpen, setIsOpen, title }: Props) {
+  return (
+    <header className="relative h-14 bg-gray-300 border-b px-4 flex items-center">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="p-1 rounded hover:bg-gray-200 transition z-10"
+      >
+        <Menu size={24} className="text-teal-700" />
+      </button>
+
+      <div className="absolute left-1/2 -translate-x-1/2 text-lg text-gray-600 font-medium">
+        {title}
       </div>
     </header>
   );
