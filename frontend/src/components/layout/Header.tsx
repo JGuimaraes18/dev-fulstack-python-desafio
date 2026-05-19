@@ -16,7 +16,7 @@ export default function Header({ isOpen, setIsOpen, title }: Props) {
         <Menu size={24} className="text-teal-700" />
       </button>
 
-      <div className="absolute left-1/2 -translate-x-1/2 text-lg text-gray-600 font-medium">
+      <div className="absolute left-1/2 -translate-x-1/2 text-lg text-teal-700 font-medium">
         {title}
       </div>
     </header>
