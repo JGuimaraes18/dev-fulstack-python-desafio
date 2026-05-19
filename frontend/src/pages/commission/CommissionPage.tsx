@@ -9,12 +9,15 @@ export default function CommissionPage() {
   const [reportData, setReportData] = useState<CommissionReport[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [dateError, setDateError] = useState(false);
 
   const handleSearch = async () => {
     if (!startDate || !endDate) {
-      alert("Selecione o período de início e fim.");
+      setDateError(true);
       return;
     }
+
+    setDateError(false);
 
     setLoading(true);
     try {
@@ -23,7 +26,6 @@ export default function CommissionPage() {
       setHasSearched(true);
     } catch (error) {
       console.error("Erro ao buscar comissões:", error);
-      alert("Erro ao carregar o relatório.");
     } finally {
       setLoading(false);
     }
@@ -44,7 +46,12 @@ export default function CommissionPage() {
             <label className="text-[10px] font-black text-gray-400 uppercase">Data Inicial</label>
             <input 
               type="date" 
-              className="border-b border-gray-300 outline-none focus:border-teal-600 transition-colors"
+              className={`border-b outline-none transition-colors
+                ${dateError && !startDate
+                  ? "border-red-500"
+                  : "border-gray-300 focus:border-teal-600"
+                }
+              `}
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
             />
@@ -53,7 +60,12 @@ export default function CommissionPage() {
             <label className="text-[10px] font-black text-gray-400 uppercase">Data Final</label>
             <input 
               type="date" 
-              className="border-b border-gray-300 outline-none focus:border-teal-600 transition-colors"
+              className={`border-b outline-none transition-colors
+                ${dateError && !endDate
+                ? "border-red-500"
+                : "border-gray-300 focus:border-teal-600"
+                }
+                `}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
@@ -82,7 +94,8 @@ export default function CommissionPage() {
               <tr className="text-[10px] font-black text-gray-400 uppercase tracking-widest border-b">
                 <th className="pb-2 w-24 text-center">Cód.</th>
                 <th className="pb-2">Vendedor</th>
-                <th className="pb-2 text-center">Qtd. Vendas</th>
+                <th className="pb-2 text-center">Quantidade Vendas</th>
+                <th className="pb-2 text-center">Total Vendas</th>
                 <th className="pb-2 text-right">Comissão Total</th>
               </tr>
             </thead>
@@ -93,7 +106,10 @@ export default function CommissionPage() {
                     {String(item.seller_id).padStart(4, '0')}
                   </td>
                   <td className="py-2 text-gray-700">{item.seller_name}</td>
-                  <td className="py-2 text-center text-gray-600 ">{item.total_sales}</td>
+                  <td className="py-2 text-center text-gray-600 ">{item.sale_count}</td>
+                  <td className="py-2 text-center text-gray-600">
+                    R$ {Number(item.total_sales).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </td>
                   <td className="py-2 text-right font-bold text-gray-800">
                     R$ {Number(item.total_commission).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </td>
@@ -102,12 +118,18 @@ export default function CommissionPage() {
             </tbody>
             <tfoot>
               <tr className="border-t-2 border-gray-200 text-[14px]">
-                <td colSpan={3} className="py-4 text-right text-black font-medium">
+                <td colSpan={5} className="py-6 font-medium text-black">
+                  <div className="flex justify-end items-center w-full">
+                    
+                    <span className="font-black text-[14px] px-8">
+                      Total de Comissões do Período ({startDate} a {endDate}):
+                    </span>
 
-                  Total de Comissões do Período:
-                </td>
-                <td className="py-6 text-right font-black text-teal-900 text-[16px]">
-                  R$ {totalComissoes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    <span className="font-black text-teal-900 text-[16px]">
+                      R$ {totalComissoes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+
+                  </div>
                 </td>
               </tr>
             </tfoot>
