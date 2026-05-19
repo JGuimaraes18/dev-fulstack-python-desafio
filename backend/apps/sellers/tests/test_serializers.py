@@ -39,4 +39,4 @@ class SellerSerializerTest(TestCase):
 
         serializer = SellerSerializer(instance=seller)
 
-        self.assertEqual(serializer.data["user_email"], self.user.email)
+        self.assertEqual(serializer.data["email"], self.user.email)

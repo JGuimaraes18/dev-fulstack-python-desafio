@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.sales.models import Sale, SaleItem
@@ -23,6 +24,7 @@ class SaleItemSerializer(serializers.ModelSerializer):
             "total_value",
         ]
 
+    @extend_schema_field(serializers.DecimalField(max_digits=12, decimal_places=2))
     def get_total_value(self, obj):
         return Decimal(obj.quantity) * obj.unit_price
 
@@ -42,8 +44,9 @@ class SaleSerializer(serializers.ModelSerializer):
             "items",
             "total_value",
         ]
-        read_only_fields = ["invoice_number", "date", "seller"]
+        read_only_fields = ["invoice_number", "date"]
 
+    @extend_schema_field(serializers.DecimalField(max_digits=12, decimal_places=2))
     def get_total_value(self, obj):
         return sum(item.quantity * item.unit_price for item in obj.items.all())
 
@@ -65,8 +68,8 @@ class SaleSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         items_data = validated_data.pop("items", None)
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        instance.customer = validated_data.get('customer', instance.customer)
+        instance.seller = validated_data.get('seller', instance.seller)
 
         instance.save()
 
@@ -108,5 +111,6 @@ class CommissionRuleSerializer(serializers.ModelSerializer):
 class CommissionReportSerializer(serializers.Serializer):
     seller_id = serializers.IntegerField()
     seller_name = serializers.CharField()
+    sale_count = serializers.IntegerField()
     total_sales = serializers.DecimalField(max_digits=12, decimal_places=2)
     total_commission = serializers.DecimalField(max_digits=12, decimal_places=2)

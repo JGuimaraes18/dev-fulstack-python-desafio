@@ -2,10 +2,10 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView)
+from rest_framework_simplejwt.views import (TokenRefreshView)
 
 from apps.accounts.views import UserViewSet
+from apps.accounts.views import CustomTokenObtainPairView
 from apps.customers.views import CustomerViewSet
 from apps.products.views import ProductViewSet
 from apps.sales.views import CommissionReportView, SaleViewSet
@@ -24,7 +24,7 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api/commissions/", CommissionReportView.as_view()),
     path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
-    path("login/", TokenObtainPairView.as_view()),
-    path("refresh/", TokenRefreshView.as_view()),
-    path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/login/", CustomTokenObtainPairView.as_view(), name="login"),
+    path("api/refresh/", TokenRefreshView.as_view(), name="refresh"),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
 ]

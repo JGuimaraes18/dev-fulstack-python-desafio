@@ -64,6 +64,7 @@ class CommissionReportView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
+        responses=CommissionReportSerializer(many=True),
         parameters=[
             OpenApiParameter(
                 name="start_date",
@@ -97,6 +98,7 @@ class CommissionReportView(APIView):
             {
                 "seller_id": c["seller"].id,
                 "seller_name": str(c["seller"]),
+                "sale_count": c.get("sale_count", 0),
                 "total_sales": c["total_sales"],
                 "total_commission": c["total_commission"],
             }
