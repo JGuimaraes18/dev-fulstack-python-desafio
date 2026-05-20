@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Pencil, Trash2, Search } from "lucide-react";
+import { Pencil, Trash2, Search, Plus, Calendar, User, ShoppingBag } from "lucide-react";
 import { getCustomers } from "../../../services/customerService";
 import { getSellers } from "../../../services/sellerService";
 import { getProducts } from "../../../services/productService";
@@ -50,45 +50,27 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
       setProducts(p);
 
       const user = getUser();
-
       const isSeller = !isAdmin();
 
       if (initialData) {
         setItems(initialData.items);
-
-        const sId =
-          typeof initialData.seller === "object"
-            ? (initialData.seller as any).id
-            : Number(initialData.seller);
-
-        const cId =
-          typeof initialData.customer === "object"
-            ? (initialData.customer as any).id
-            : Number(initialData.customer);
+        const sId = typeof initialData.seller === "object" ? (initialData.seller as any).id : Number(initialData.seller);
+        const cId = typeof initialData.customer === "object" ? (initialData.customer as any).id : Number(initialData.customer);
 
         setSelectedSeller(sId);
         setSelectedCustomer(cId);
 
         if (isSeller) {
-          const sellerLogged = s.find(
-            (seller) => seller.user === user?.id
-          );
-
-          if (sellerLogged) {
-            setSellers([sellerLogged]);
-          }
+          const sellerLogged = s.find((seller) => seller.user === user?.id);
+          if (sellerLogged) setSellers([sellerLogged]);
         } else {
           setSellers(s);
         }
-
         return;
       }
 
       if (isSeller) {
-        const sellerLogged = s.find(
-          (seller) => seller.user === user?.id
-        );
-
+        const sellerLogged = s.find((seller) => seller.user === user?.id);
         if (sellerLogged) {
           setSellers([sellerLogged]);
           setSelectedSeller(sellerLogged.id);
@@ -146,7 +128,7 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
   };
 
   const handleAddItem = () => {
-    if (!selectedProduct) return true;
+    if (!selectedProduct) return;
     const unitPrice = parseFloat(selectedProduct.unit_price);
     const newItem: SaleItem = {
       id: Math.random(),
@@ -167,15 +149,12 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
   const handleUpdateQuantity = (index: number, newQuantity: number) => {
     const updated = [...items];
     updated[index].quantity = newQuantity;
-    updated[index].total_value =
-      updated[index].unit_price * newQuantity;
-
+    updated[index].total_value = updated[index].unit_price * newQuantity;
     setItems(updated);
   };
 
   const handleSubmit = async () => {
-    const hasError =
-      !selectedSeller || !selectedCustomer || items.length === 0;
+    const hasError = !selectedSeller || !selectedCustomer || items.length === 0;
     if (hasError) {
       setFormError(true);
       return;
@@ -193,187 +172,192 @@ export default function SaleForm({ initialData, onSave, title }: SaleFormProps) 
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2 border-b">
-        <div className="text-2xl font-bold text-teal-700 italic">{title}</div>
-      </header>
+    <div className="max-w-7xl mx-auto space-y-4 p-1">
+      <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+        <div>
+          <div className="text-2xl font-bold text-slate-900">{title}</div>
+        </div>
+        <div className="text-xs text-slate-400 font-medium flex items-center gap-1.5 bg-slate-100 px-2.5 py-1 rounded-md">
+          <Calendar size={13} />
+          {initialData ? new Date(initialData.date).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR')}
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2">
-          <h3 className="text-lg font-semibold mb-4 mt-4 text-gray-800">Produtos</h3>
-          <div className="flex gap-4 mb-10 items-end relative">
-            <div className="flex-1 relative">
-              <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Buscar Produto</label>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-100 shadow-sm p-4 space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-50 pb-2">
+            <ShoppingBag className="text-teal-600" size={16} />
+            <h3 className="text-sm font-bold text-slate-800">Produtos</h3>
+          </div>
+
+          {/* INPUTS EM LINHA ÚNICA */}
+          <div className="grid grid-cols-12 gap-2 items-end relative">
+            <div className="col-span-12 sm:col-span-8 relative">
+              <label className="text-[11px] font-semibold text-slate-500 mb-1 block">Buscar Produto</label>
               <div className="relative">
                 <input 
                   type="text" 
-                  className="w-full text-sm border-b border-gray-300 py-2 pl-2 pr-8 outline-none focus:border-teal-600 bg-transparent" 
+                  className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 pl-8 outline-none focus:border-teal-600 bg-slate-50/50" 
                   placeholder="Código ou descrição..." 
                   value={searchQuery}
                   onChange={(e) => handleSearchChange(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onFocus={() => searchQuery.length > 0 && setShowSuggestions(true)}
                 />
-                <Search className="absolute right-2 top-2 text-gray-300" size={18} />
+                <Search className="absolute left-2.5 top-2 text-slate-400" size={14} />
               </div>
+              
               {showSuggestions && filteredProducts.length > 0 && (
-                <div className="absolute z-50 w-full bg-white border border-gray-100 rounded-md shadow-xl mt-1 max-h-64 overflow-y-auto" ref={suggestionRef}>
+                <div className="absolute z-50 w-full bg-white border border-slate-100 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto" ref={suggestionRef}>
                   {filteredProducts.map((p, idx) => (
-                    <div key={p.id} onClick={() => handleSelectProduct(p)} className={`px-4 py-3 cursor-pointer flex justify-between items-center border-b last:border-0 text-sm ${focusedIndex === idx ? "bg-teal-100" : "hover:bg-teal-50"}`}>
+                    <div key={p.id} onClick={() => handleSelectProduct(p)} className={`px-3 py-2 cursor-pointer flex justify-between items-center border-b border-slate-50 last:border-0 text-xs ${focusedIndex === idx ? "bg-teal-50" : "hover:bg-slate-50"}`}>
                       <div>
-                        <p className="font-bold text-gray-700">{p.description}</p>
-                        <p className="text-[10px] text-gray-400">CÓD: {p.code}</p>
+                        <p className="font-semibold text-slate-800">{p.description}</p>
+                        <p className="text-[9px] text-slate-400 uppercase">CÓD: {p.code}</p>
                       </div>
-                      <span className="text-teal-700 font-bold">R$ {parseFloat(p.unit_price).toFixed(2)}</span>
+                      <span className="text-teal-600 font-bold">R$ {parseFloat(p.unit_price).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
               )}
             </div>
-            <div className="w-24">
-              <label className="text-[10px] font-bold text-gray-400 uppercase mb-1 block">Quantidade</label>
-              <input type="number" className="w-full text-sm border-b border-gray-300 py-2 outline-none text-center" value={quantityToAdd} onChange={(e) => setQuantityToAdd(Number(e.target.value))} min="1" />
+
+            <div className="col-span-6 sm:col-span-2">
+              <label className="text-[11px] font-semibold text-slate-500 mb-1 block">Qtd</label>
+              <input type="number" className="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 outline-none text-center bg-slate-50/50" value={quantityToAdd} onChange={(e) => setQuantityToAdd(Number(e.target.value))} min="1" />
             </div>
-            <button onClick={handleAddItem} className="bg-teal-800 text-white px-2 py-2 rounded uppercase text-xs font-black hover:bg-teal-900 h-[35px]">Adicionar</button>
+
+            <button onClick={handleAddItem} className="col-span-6 sm:col-span-2 bg-teal-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-teal-700 h-[30px] transition-all flex items-center justify-center gap-1 shadow-sm">
+              <Plus size={14} /> Inserir
+            </button>
           </div>
 
-          <div className={`max-h-80 overflow-y-auto custom-scroll rounded-md`}>
-            {formError && items.length === 0 && (
-              <p className="text-red-500 text-xs border-red-500">
-                *Adicione pelo menos um produto para continuar
-              </p>
-            )}
-            <table className="w-full text-sm table-fixed">
-              <thead className="sticky top-0 bg-white z-10">
-                <tr className="text-left text-gray-400 uppercase text-[10px] border-b">
-                  <th className="py-3 w-[45%]">Produtos</th>
-                  <th className="py-3 w-[15%] text-center">Quantidade</th>
-                  <th className="py-3 w-[15%] text-center">Valor Unitário</th>
-                  <th className="py-3 w-[15%] text-center">Total</th>
-                  <th className="py-3 w-[10%] text-center">Ação</th>
+          <div className="border border-slate-100 rounded-lg overflow-hidden max-h-60 overflow-y-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-slate-50 border-b border-slate-100 sticky top-0">
+                <tr className="text-slate-500 font-semibold text-[11px] uppercase">
+                  <th className="p-2.5 w-[45%]">Produto</th>
+                  <th className="p-2.5 w-[10%] text-center">Quantidade</th>
+                  <th className="p-2.5 w-[20%] text-center">Valor Unitário</th>
+                  <th className="p-2.5 w-[15%] text-center">Total</th>
+                  <th className="p-2.5 w-[10%] text-center">Ação</th>
                 </tr>
               </thead>
 
-              <tbody>
-                {items.map((item, idx) => (
-                  <tr
-                    key={idx}
-                    className="border-b text-[12px] last:border-0 hover:bg-slate-50 transition-colors"
-                  >
-                    <td className="py-2 text-gray-600 font-medium truncate">
-                      {item.product_description}
-                    </td>
-                    <td className="py-2 text-center">
-                      {editingIndex === idx ? (
-                        <input
-                          type="number"
-                          min="1"
-                          autoFocus
-                          value={item.quantity}
-                          onChange={(e) =>
-                            handleUpdateQuantity(idx, Number(e.target.value))
-                          }
-                          onBlur={() => setEditingIndex(null)}
-                          className="w-16 text-center border-b border-gray-300 outline-none"
-                        />
-                      ) : (
-                        item.quantity
-                      )}
-                    </td>
-                    <td className="py-2 text-gray-600 text-center">
-                      R$ {Number(item.unit_price).toFixed(2)}
-                    </td>
-                    <td className="py-2 font-bold text-gray-800 text-center">
-                      R$ {Number(item.total_value).toFixed(2)}
-                    </td>
-                    <td className="py-2">
-                      <div className="flex items-center justify-center gap-3">
-                        <button
-                          onClick={() => setEditingIndex(idx)}
-                          className="text-gray-400 hover:text-blue-600 transition"
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          onClick={() =>
-                            setItems(items.filter((_, i) => i !== idx))
-                          }
-                          className="text-gray-300 hover:text-red-500 transition"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
+              <tbody className="divide-y divide-slate-50 text-xs">
+                {items.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="p-6 text-center text-slate-400 text-[11px]">
+                      {formError && <p className="text-red-500 font-medium mb-1">* Carrinho vazio.</p>}
+                      Nenhum item na lista.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  items.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/50 transition-colors">
+                      <td className="p-2 text-slate-800 font-medium truncate">{item.product_description}</td>
+                      <td className="p-2 text-center">
+                        {editingIndex === idx ? (
+                          <input
+                            type="number"
+                            min="1"
+                            autoFocus
+                            value={item.quantity}
+                            onChange={(e) => handleUpdateQuantity(idx, Number(e.target.value))}
+                            onBlur={() => setEditingIndex(null)}
+                            className="w-12 text-center border border-slate-200 rounded px-1 py-0.5 outline-none"
+                          />
+                        ) : (
+                          <span className="bg-slate-100 px-1.5 py-0.5 rounded font-medium text-slate-700">{item.quantity}</span>
+                        )}
+                      </td>
+                      <td className="p-2 text-slate-500 text-center">R$ {Number(item.unit_price).toFixed(2)}</td>
+                      <td className="p-2 font-bold text-slate-900 text-center">R$ {Number(item.total_value).toFixed(2)}</td>
+                      <td className="p-2 text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <button onClick={() => setEditingIndex(idx)} className="p-1 text-slate-400 hover:text-teal-600 rounded hover:bg-slate-100">
+                            <Pencil size={12} />
+                          </button>
+                          <button onClick={() => setItems(items.filter((_, i) => i !== idx))} className="p-1 text-slate-400 hover:text-rose-600 rounded hover:bg-slate-100">
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
-        <div className="bg-slate-50 p-6 rounded-xl border border-gray-200 h-fit sticky top-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">Dados da venda</h3>
-          <div className="space-y-6">
+        <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 space-y-4 h-fit sticky top-4">
+          <div className="flex items-center gap-1.5 border-b border-slate-50 pb-2">
+            <User className="text-teal-600" size={16} />
+            <h3 className="text-sm font-bold text-slate-800">Dados da Venda</h3>
+          </div>
+          
+          <div className="space-y-3 text-xs">
             <div>
-              <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Data</label>
-              <input type="text" disabled value={initialData ? new Date(initialData.date).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR')} className="w-full bg-white border border-gray-200 rounded-md p-2 text-gray-400 text-xs" />
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1">Vendedor</label>
+              {isAdmin() ? (
+                <select
+                  className={`w-full text-xs bg-slate-50/50 border rounded-lg p-2 outline-none focus:border-teal-600 transition-all cursor-pointer ${
+                    formError && !selectedSeller ? "border-rose-400 bg-rose-50/50" : "border-slate-200"
+                  }`}
+                  value={selectedSeller}
+                  onChange={(e) => setSelectedSeller(Number(e.target.value))}
+                >
+                  <option value={0}>Selecione...</option>
+                  {sellers.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {String(s.id).padStart(3, "0")} - {s.full_name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div className="w-full bg-slate-50 border border-slate-100 rounded-lg p-2 text-slate-700 font-medium flex items-center gap-2">
+                  <User size={12} className="text-slate-400" />
+                  {sellers.length > 0 ? sellers[0].full_name : "Carregando..."}
+                </div>
+              )}
             </div>
+
             <div>
-              <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Vendedor</label>
-                {isAdmin() ? (
-                  <select
-                    className={`w-full text-xs bg-white border rounded-md p-2 outline-none text-sm focus:ring-2 focus:ring-teal-500 ${
-                      formError && !selectedSeller
-                        ? "border-red-500"
-                        : "border-gray-300"
-                    }`}
-                    value={selectedSeller}
-                    onChange={(e) =>
-                      setSelectedSeller(Number(e.target.value))
-                    }
-                  >
-                    <option value={0}>Selecione...</option>
-                    {sellers.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {String(s.id).padStart(3, "0")} - {s.full_name}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <div className="w-full text-xs bg-gray-100 border border-gray-300 rounded-md p-2 text-sm">
-                    {sellers.length > 0
-                      ? `${String(sellers[0].id).padStart(3, "0")} - ${
-                          sellers[0].full_name
-                        }`
-                      : "Carregando..."}
-                  </div>
-                )}
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Cliente</label>
-              <select className={`w-full text-xs bg-white border rounded-md p-2 outline-none text-sm focus:ring-2 focus:ring-teal-500 ${formError && !selectedCustomer ? "border-red-500" : "border-gray-300"}`} value={selectedCustomer} onChange={(e) => setSelectedCustomer(Number(e.target.value))}>
+              <label className="block text-[11px] font-semibold text-slate-500 mb-1">Cliente</label>
+              <select 
+                className={`w-full text-xs bg-slate-50/50 border rounded-lg p-2 outline-none focus:border-teal-600 transition-all cursor-pointer ${
+                  formError && !selectedCustomer ? "border-rose-400 bg-rose-50/50" : "border-slate-200"
+                }`} 
+                value={selectedCustomer} 
+                onChange={(e) => setSelectedCustomer(Number(e.target.value))}
+              >
                 <option value={0}>Selecione...</option>
                 {customers.map(c => <option key={c.id} value={c.id}>{String(c.id).padStart(3, '0')} - {c.name}</option>)}
               </select>
             </div>
-            <div className="pt-8 border-t space-y-6">
-              <div className="flex flex-col mb-10">
-                <span className="text-gray-500 text-lg font-bold text-xs uppercase">Total da venda</span>
-                <span className="text-3xl font-black  text-right text-teal-900">R$ {totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+
+            <div className="pt-3 border-t border-slate-100 space-y-3">
+              <div className="flex justify-between items-center bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                <span className="text-slate-500 font-semibold text-[11px] uppercase tracking-wider">Total Geral</span>
+                <span className="text-xl font-black text-teal-800">
+                  R$ {totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </span>
               </div>
-              <div className="flex justify-end gap-4">
+
+              <div className="flex gap-2">
                 <button
                   onClick={() => navigate("/")}
-                  className="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+                  className="flex-1 border border-slate-200 text-slate-600 py-1.5 rounded-lg font-bold hover:bg-slate-50 transition-colors"
                 >
                   Cancelar
                 </button>
 
                 <button
                   onClick={handleSubmit}
-                  className="bg-teal-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-teal-700 active:scale-95 transition-all"
+                  className="flex-1 bg-teal-600 text-white py-1.5 rounded-lg font-bold shadow-sm hover:bg-teal-700 active:scale-[0.98] transition-all"
                 >
-                  Finalizar
+                  Gravar Venda
                 </button>
               </div>
             </div>

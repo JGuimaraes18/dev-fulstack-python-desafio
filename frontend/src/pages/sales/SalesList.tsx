@@ -5,7 +5,7 @@ import { getSellers } from "../../services/sellerService";
 import type { Sale } from "../../types/Sale";
 import type { Customer } from "../../types/Customer";
 import type { Seller } from "../../types/Seller";
-import { ChevronDown, ChevronUp, Pencil, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Pencil, Trash2, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmModal } from "../../components/layout/ui/ConfirmModal";
 import { getUser } from "../../services/authService";
@@ -61,7 +61,10 @@ export default function SalesList({ searchTerm }: SalesListProps) {
 
     try {
       await deleteSale(saleToDelete);
+      setSales((prevSales) => prevSales.filter((sale) => sale.id !== saleToDelete));
+
       navigate("/", {
+        replace: true, 
         state: {
           message: "Venda excluída com sucesso!",
           type: "success"
@@ -121,148 +124,143 @@ export default function SalesList({ searchTerm }: SalesListProps) {
       .sort((a, b) => Number(b.invoice_number) - Number(a.invoice_number));
   }, [sales, searchTerm, customerMap, sellerMap]);
 
-  if (loading) return <p className="p-4 text-xs">Carregando vendas...</p>;
-  if (error) return <p className="p-4 text-xs text-red-500">{error}</p>;
+  if (loading) return <p className="p-4 text-xs font-medium text-slate-500">Carregando vendas...</p>;
+  if (error) return <p className="p-4 text-xs font-medium text-rose-500">{error}</p>;
 
   return (
     <>
-      <div className="bg-white rounded-lg overflow-hidden shadow-sm border border-gray-200">
-        <div className="max-h-[80vh] overflow-y-auto custom-scroll">
-          <table className="w-full text-left text-xs table-fixed">
-            <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10 shadow-[0_1px_0_0_rgba(0,0,0,0.05)]">
-              <tr>
-                <th className="p-2 w-[12%]">Nota Fiscal</th>
-                <th className="p-2 w-[28%]">Cliente</th>
-                <th className="p-2 w-[25%]">Vendedor</th>
-                <th className="p-2 text-center w-[15%]">Data</th>
-                <th className="p-2 text-center w-[10%]">Valor Total</th>
-                <th className="p-2 text-center w-[10%]">Opções</th>
+      <div className="w-full bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="w-full overflow-x-auto custom-scroll">
+          <table className="w-full text-left text-xs table-fixed border-collapse min-w-[760px] lg:min-w-full">
+            <thead className="bg-slate-50 text-slate-500 sticky top-0 z-10 border-b border-slate-100">
+              <tr className="font-semibold text-[11px] uppercase tracking-wider">
+                <th className="p-3 w-[10%]">Nota Fiscal</th>
+                <th className="p-3 w-[25%]">Cliente</th>
+                <th className="p-3 w-[25%]">Vendedor</th>
+                <th className="p-3 text-center w-[15%]">Data</th>
+                <th className="p-3 text-center w-[15%]">Valor Total</th>
+                <th className="p-3 text-center w-[10%]">Ações</th>
               </tr>
             </thead>
 
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
               {filteredAndSortedSales.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-gray-400 italic">
+                  <td colSpan={6} className="p-8 text-center text-slate-400 italic text-[11px]">
                     Nenhuma venda encontrada para o termo pesquisado.
                   </td>
                 </tr>
               ) : (
                 filteredAndSortedSales.map((sale) => (
                   <Fragment key={sale.id}>
-                    <tr className="border-b hover:bg-slate-50 transition-colors text-gray-700 text-xs">
-                      <td className="p-2 font-mono">{sale.invoice_number}</td>
+                    <tr className="hover:bg-slate-50/60 transition-colors">
+                      <td className="p-2.5">
+                        <div className="flex items-center gap-1.5 font-mono font-semibold text-slate-900">
+                          <FileText size={13} className="text-slate-400 shrink-0" />
+                          <span>{sale.invoice_number}</span>
+                        </div>
+                      </td>
 
-                      <td className="p-2 truncate" title={customerMap.get(sale.customer)}>
+                      <td className="p-2.5 truncate font-medium text-slate-800">
                         {customerMap.get(sale.customer) ?? "—"}
                       </td>
 
-                      <td className="p-2 truncate" title={sellerMap.get(sale.seller)}>
+                      <td className="p-2.5 truncate text-slate-500">
                         {sellerMap.get(sale.seller) ?? "—"}
                       </td>
 
-                      <td className="text-center p-2">
+                      <td className="text-center p-2.5 text-slate-500">
                         {new Date(sale.date).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}
                       </td>
 
-                      <td className="p-2 text-center font-medium">
+                      <td className="p-2.5 text-center font-bold text-slate-900">
                         {currencyFormatter.format(sale.total_value)}
                       </td>
 
-                      <td className="p-2 flex justify-center items-center gap-3">
-                        <button
-                          onClick={() => toggleExpand(sale.id)}
-                          className="text-teal-700 flex items-center gap-0.5 hover:underline"
-                        >
-                          {expandedSaleId === sale.id ? (
-                            <>
-                              Fechar <ChevronUp size={14} />
-                            </>
-                          ) : (
-                            <>
-                              Itens <ChevronDown size={14} />
-                            </>
-                          )}
-                        </button>
-                        
-                        <button
-                          onClick={() => !isSeller && navigate(`/vendas/editar/${sale.id}`)}
-                          disabled={isSeller}
-                          className={`${
-                            isSeller
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "text-blue-600 hover:text-blue-800"
-                          }`}
-                          title="Editar venda"
-                        >
-                          <Pencil size={14} />
-                        </button>
+                      <td className="p-2.5">
+                        <div className="flex justify-center items-center gap-1.5">
+                          <button
+                            onClick={() => toggleExpand(sale.id)}
+                            className={`p-1 rounded transition-colors ${
+                              expandedSaleId === sale.id 
+                                ? "bg-teal-50 text-teal-700" 
+                                : "text-slate-400 hover:text-teal-600 hover:bg-slate-100"
+                            }`}
+                            title={expandedSaleId === sale.id ? "Fechar itens" : "Ver itens"}
+                          >
+                            {expandedSaleId === sale.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                          </button>
+                          
+                          <button
+                            onClick={() => !isSeller && navigate(`/vendas/editar/${sale.id}`)}
+                            disabled={isSeller}
+                            className={`p-1 rounded transition-colors ${
+                              isSeller
+                                ? "text-slate-200 cursor-not-allowed"
+                                : "text-slate-400 hover:text-blue-600 hover:bg-slate-100"
+                            }`}
+                            title="Editar venda"
+                          >
+                            <Pencil size={14} />
+                          </button>
 
-                        <button
-                          onClick={() => {
-                            if (isSeller) return;
-                            setSaleToDelete(sale.id);
-                            setIsModalOpen(true);
-                          }}
-                          disabled={isSeller}
-                          className={`${
-                            isSeller
-                              ? "text-gray-300 cursor-not-allowed"
-                              : "text-red-600 hover:text-red-800"
-                          }`}
-                          title="Excluir venda"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                          <button
+                            onClick={() => {
+                              if (isSeller) return;
+                              setSaleToDelete(sale.id);
+                              setIsModalOpen(true);
+                            }}
+                            disabled={isSeller}
+                            className={`p-1 rounded transition-colors ${
+                              isSeller
+                                ? "text-slate-200 cursor-not-allowed"
+                                : "text-slate-400 hover:text-rose-600 hover:bg-slate-100"
+                            }`}
+                            title="Excluir venda"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
 
                     {expandedSaleId === sale.id && (
-                      <tr className="bg-slate-50">
-                        <td colSpan={6} className="p-4 border-b">
-                          <div className="bg-white rounded border border-gray-200 p-3 shadow-inner">
-                            <table className="w-full text-xs text-gray-600 table-fixed">
-                              <thead className="border-b bg-gray-50 text-gray-500">
-                                <tr>
-                                  <th className="py-1.5 px-2 w-[55%] text-left font-semibold">
-                                    Produto/Serviço
-                                  </th>
-                                  <th className="py-1.5 w-[15%] text-center font-semibold">Qtd</th>
-                                  <th className="py-1.5 w-[15%] text-center font-semibold">
-                                    Preço Unit.
-                                  </th>
-                                  <th className="py-1.5 px-2 w-[15%] text-right font-semibold">Total</th>
+                      <tr className="bg-slate-50/50">
+                        <td colSpan={6} className="p-3 border-t border-b border-slate-100">
+                          <div className="bg-white rounded-lg border border-slate-100 p-2.5 shadow-inner">
+                            <table className="w-full text-[11px] text-slate-600 table-fixed border-collapse">
+                              <thead>
+                                <tr className="border-b border-slate-100 text-slate-400 font-semibold">
+                                  <th className="pb-1.5 px-2 w-[55%] text-left">Produto/Serviço</th>
+                                  <th className="pb-1.5 w-[15%] text-center">Qtd</th>
+                                  <th className="pb-1.5 w-[15%] text-center">Preço Unit.</th>
+                                  <th className="pb-1.5 px-2 w-[15%] text-right">Total</th>
                                 </tr>
                               </thead>
 
-                              <tbody>
+                              <tbody className="divide-y divide-slate-50">
                                 {sale.items.map((item) => (
-                                  <tr key={item.id} className="border-b last:border-0 hover:bg-slate-50">
-                                    <td className="py-1.5 px-2 truncate">
+                                  <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="py-1.5 px-2 truncate font-medium text-slate-700">
                                       {item.product_description}
                                     </td>
-
-                                    <td className="py-1.5 text-center">
+                                    <td className="py-1.5 text-center text-slate-800 font-medium">
                                       {item.quantity}
                                     </td>
-
-                                    <td className="py-1.5 text-center">
+                                    <td className="py-1.5 text-center text-slate-500">
                                       {currencyFormatter.format(item.unit_price)}
                                     </td>
-
-                                    <td className="py-1.5 px-2 text-right font-medium">
+                                    <td className="py-1.5 px-2 text-right font-semibold text-slate-900">
                                       {currencyFormatter.format(item.total_value)}
                                     </td>
                                   </tr>
                                 ))}
 
-                                <br />
-                                <tr className="text-xs font-bold text-gray-800">
-                                  {/* Corrigido para colSpan 3 para alinhar perfeitamente à direita */}
-                                  <td colSpan={3} className="py-2 text-right pr-4">
+                                <tr className="text-xs font-bold text-slate-800">
+                                  <td colSpan={3} className="pt-2 text-right pr-4 text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
                                     Total da Venda:
                                   </td>
-                                  <td className="py-2 pr-2 text-right text-teal-700 text-sm">
+                                  <td className="pt-2 pr-2 text-right text-teal-700 font-black text-sm">
                                     {currencyFormatter.format(sale.total_value)}
                                   </td>
                                 </tr>

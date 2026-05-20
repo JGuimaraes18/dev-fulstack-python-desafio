@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -18,33 +18,47 @@ export function ConfirmModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white w-[350px] shadow-xl p-4 animate-fadeIn">
-
-        <div className="flex justify-between items-center mb-8">
-          <label className="text-xl font-bold text-black">{title}</label>
-          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">
-            <X size={18} />
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center z-50 p-4">
+      {/* Caixa do Modal Slim */}
+      <div className="bg-white w-full max-w-[360px] rounded-xl shadow-xl border border-slate-100 p-4 animate-in fade-in zoom-in-95 duration-200">
+        
+        {/* Cabeçalho */}
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-1 rounded-md bg-rose-50 text-rose-600 shrink-0">
+              <AlertCircle size={16} />
+            </div>
+            <h2 className="text-sm font-semibold text-slate-900 leading-none">
+              {title}
+            </h2>
+          </div>
+          <button 
+            onClick={onCancel} 
+            className="text-slate-400 hover:text-slate-600 p-0.5 rounded-md hover:bg-slate-50 transition-colors"
+          >
+            <X size={15} />
           </button>
         </div>
 
-        <p className="text-sm text-black">
+        {/* Mensagem Corpo */}
+        <p className="text-xs text-slate-500 leading-relaxed pl-7">
           {message}
         </p>
 
-        <div className="flex justify-end gap-3 mt-8">
+        {/* Rodapé / Ações */}
+        <div className="flex justify-end gap-2 mt-5">
           <button
             onClick={onCancel}
-            className="px-4 py-1 rounded-lg bg-white border border-teal-600 text-teal-700 font-medium hover:bg-gray-300"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors border border-slate-200"
           >
-            Não
+            Não, cancelar
           </button>
 
           <button
             onClick={onConfirm}
-            className="px-6 py-1 rounded-lg bg-teal-600 text-white font-medium hover:bg-teal-900"
+            className="px-4 py-1.5 rounded-lg text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 active:scale-95 transition-all shadow-sm shadow-rose-600/10"
           >
-            Sim
+            Sim, excluir
           </button>
         </div>
       </div>
