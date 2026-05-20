@@ -2,12 +2,14 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import SalesList from "./SalesList";
+import { Search } from "lucide-react";
 
 export default function SalesPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [message, setMessage] = useState<string | null>(null);
   const [type, setType] = useState<"success" | "error" | "warning">("success");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (location.state?.message) {
@@ -27,6 +29,19 @@ export default function SalesPage() {
       <div className="flex justify-between items-center">
         <div className="text-base font-semibold text-teal-700">
           Vendas Realizadas
+        </div>
+
+        <div className="flex-1 max-w-md relative min-w-[240px]">
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
+            <Search size={16} />
+          </span>
+          <input
+            type="text"
+            placeholder="Buscar por cliente, vendedor, NF ou data..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-9 pr-4 py-1.5 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500 shadow-sm transition-colors"
+          />
         </div>
 
         <button
@@ -50,7 +65,9 @@ export default function SalesPage() {
           {message}
         </div>
       )}
-      <SalesList />
+      
+      <SalesList searchTerm={searchTerm} />
+    
     </div>
   );
 }
