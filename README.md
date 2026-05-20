@@ -41,9 +41,11 @@ Siga os passos abaixo para clonar, configurar e rodar o projeto na sua máquina.
 
 ### 1. Clonar o Repositório
 Abra o seu terminal e execute:
+
 ```bash
-git clone [https://github.com/seu-usuario/dev-fulstack-python-desafio.git](https://github.com/seu-usuario/dev-fulstack-python-desafio.git)
+git clone [https://github.com/JGuimaraes18/dev-fulstack-python-desafio.git](https://github.com/JGuimaraes18/dev-fulstack-python-desafio.git)
 cd dev-fulstack-python-desafio
+```
 
 ### 2. Configurar as Variáveis de Ambiente (`.env`)
 
@@ -55,6 +57,7 @@ cp .env.dev.example .env.dev
 
 # Para o ambiente de Produção:
 cp .env.prod.example .env.prod
+```
 
 ### 3. Iniciar a aplicação em modo Dev e Prod
 
@@ -75,6 +78,7 @@ make start-prod
 
 # Para parar todos os containers ativos do projeto:
 make stop
+```
 
 ### 4. Acessando a Aplicação
 
