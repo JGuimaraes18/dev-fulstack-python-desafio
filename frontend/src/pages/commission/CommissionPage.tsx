@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import { getCommissionReport } from "../../services/commissionService";
 import type { CommissionReport } from "../../types/Commission";
@@ -35,6 +35,12 @@ export default function CommissionPage() {
     (acc, curr) => acc + Number(curr.total_commission), 
     0
   );
+
+  const sortedCommissions = useMemo(() => {
+    return [...reportData].sort((a, b) => {
+      return Number(b.seller_id) - Number(a.seller_id);
+    });
+  }, [reportData]);
 
   return (
     <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
@@ -100,7 +106,7 @@ export default function CommissionPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 mb-4">
-              {reportData.map((item) => (
+              {sortedCommissions.map((item) => (
                 <tr key={item.seller_id} className="hover:bg-slate-50 transition-colors text-xs ">
                   <td className="py-2 text-center text-gray-500 font-mono">
                     {String(item.seller_id).padStart(4, '0')}
