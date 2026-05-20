@@ -6,6 +6,7 @@ services:
     restart: always
     env_file:
       - .env_prod
+    command: sh -c "gunicorn core.wsgi:application --bind 0.0.0.0:8000"      
     volumes:
       - static_volume:/staticfiles
     networks:

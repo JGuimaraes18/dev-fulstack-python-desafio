@@ -17,5 +17,5 @@ else
     echo "Superuser env not set, skipping"
 fi
 
-echo "Starting Gunicorn..."
-gunicorn core.wsgi:application --bind 0.0.0.0:8000
+echo "Running command: $@"
+exec "$@"
