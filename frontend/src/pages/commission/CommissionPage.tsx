@@ -52,7 +52,8 @@ export default function CommissionPage() {
             <label className="text-[10px] font-black text-gray-400 uppercase">Data Inicial</label>
             <input 
               type="date" 
-              className={`border-b outline-none transition-colors
+              className={`border-b outline-none transition-colors p-1 text-xs text-gray-700
+                [&::-webkit-calendar-picker-indicator]:invert-[0.5] 
                 ${dateError && !startDate
                   ? "border-red-500"
                   : "border-gray-300 focus:border-teal-600"
@@ -66,12 +67,13 @@ export default function CommissionPage() {
             <label className="text-[10px] font-black text-gray-400 uppercase">Data Final</label>
             <input 
               type="date" 
-              className={`border-b outline-none transition-colors
+              className={`border-b outline-none transition-colors p-1 text-xs text-gray-700
+                [&::-webkit-calendar-picker-indicator]:invert-[0.5] 
                 ${dateError && !endDate
-                ? "border-red-500"
-                : "border-gray-300 focus:border-teal-600"
+                  ? "border-red-500"
+                  : "border-gray-300 focus:border-teal-600"
                 }
-                `}
+              `}
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
             />
