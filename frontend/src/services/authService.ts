@@ -1,3 +1,16 @@
+import { api } from "./api";
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+interface AuthResponse {
+  access: string;
+  refresh: string;
+  user: any;
+}
+
 export function setAuth(data: {
   access: string;
   refresh: string;
@@ -19,6 +32,12 @@ export function getRefresh() {
 export function getUser() {
   const data = localStorage.getItem("user");
   return data ? JSON.parse(data) : null;
+}
+
+export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
+  const { data } = await api.post<AuthResponse>("/api/login/", credentials);
+  setAuth(data);
+  return data;
 }
 
 export function logout() {

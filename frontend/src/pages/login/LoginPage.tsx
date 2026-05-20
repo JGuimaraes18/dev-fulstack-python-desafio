@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../services/api";
-import { setAuth } from "../../services/authService";
+import { login } from "../../services/authService";
 import { Mail, Lock, AlertCircle } from "lucide-react"; 
 
 export default function LoginPage() {
@@ -23,12 +22,8 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { data } = await api.post("/api/login/", {
-        email,
-        password,
-      });
-
-      setAuth(data);
+      await login({ email, password });
+      
       navigate("/");
     } catch (err: any) {
       console.error(err);
